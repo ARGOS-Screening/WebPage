@@ -555,9 +555,12 @@
     .ai-limits .ico { color: var(--warm); background: color-mix(in oklab, var(--warm) 14%, transparent); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--warm) 30%, transparent); }
     .ticks-ink li { position: relative; padding-left: 1.6rem; }
     .ticks-ink li::before { content: ""; position: absolute; left: .15rem; top: .45em; width: .55rem; height: .55rem; border-radius: 50%; border: 2px solid var(--warm); }
-    .cmp-kpi { min-width: 760px; }
+    .cmp-kpi { min-width: 1000px; }
+    .cmp-kpi tbody td:nth-child(4) { font-family: var(--f-mono); font-size: .76rem; color: var(--muted); }
+    .cmp-kpi tbody td:last-child { font-size: .85rem; color: var(--muted); }
+    .ai-benefit { border-radius: 16px; padding: 1rem 1.15rem; border: 1px solid color-mix(in oklab, var(--cyan) 22%, transparent); background: color-mix(in oklab, var(--cyan) 6%, transparent); font-size: .9rem; line-height: 1.55; color: var(--ink-fg); }
+    .ai-benefit-k { margin-bottom: .3rem; font-size: .7rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--cyan); }
     .cmp-kpi td, .cmp-kpi th { font-size: .9rem; }
-    .cmp-kpi tbody td:last-child { font-family: var(--f-mono); font-size: .76rem; color: var(--muted); }
     .stage { display: inline-block; font-size: .7rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: .2rem .55rem; border-radius: 999px; color: var(--accent); background: var(--accent-soft); white-space: nowrap; }
 
     /* Preguntas frecuentes */
@@ -1055,9 +1058,9 @@
         <div class="cmp-wrap mt-6" data-scroll="none">
           <div class="cmp-scroll" tabindex="0" role="region" aria-labelledby="cmp-title">
             <table class="cmp cmp-matrix">
-              <caption class="sr-only">Comparación de ARGOS con otros fotoscreeners: Plusoptix Vision Screener, Spot Vision Screener, 2WIN de Adaptica y un fotorrefractor con minicomputador</caption>
+              <caption class="sr-only">Comparación de ARGOS con tres fotoscreeners comerciales y un dispositivo académico</caption>
               <thead>
-                <tr><th scope="col">Criterio</th><th scope="col"><span class="block">Plusoptix Vision Screener</span><span class="cmp-price">&gt; US$ 6 000</span></th><th scope="col"><span class="block">Spot Vision Screener</span><span class="cmp-price">&gt; US$ 7 000</span></th><th scope="col"><span class="block">2WIN de Adaptica</span><span class="cmp-price">&gt; US$ 4 600</span></th><th scope="col"><span class="block">Fotorrefractor con minicomputador <a class="cite" href="#ref5">[5]</a></span><span class="cmp-price">~ US$ 120</span></th><th scope="col" class="us"><span class="block">ARGOS</span><span class="cmp-price">Nuestra propuesta</span></th></tr>
+                <tr><th scope="col">Criterio</th><th scope="col"><span class="block">Screener 1</span><span class="cmp-price">&gt; US$ 6 000</span></th><th scope="col"><span class="block">Screener 2</span><span class="cmp-price">&gt; US$ 7 000</span></th><th scope="col"><span class="block">Screener 3</span><span class="cmp-price">&gt; US$ 4 600</span></th><th scope="col"><span class="block">Dispositivo académico <a class="cite" href="#ref5">[5]</a></span><span class="cmp-price">~ US$ 120</span></th><th scope="col" class="us"><span class="block">ARGOS</span><span class="cmp-price">Nuestra propuesta</span></th></tr>
               </thead>
               <tbody>
                 <tr><th scope="row">Portabilidad</th><td><span class="mark m-mid"><i aria-hidden="true">±</i><span class="sr-only">Parcial</span></span></td><td><span class="mark m-yes"><i aria-hidden="true">✓</i><span class="sr-only">Sí</span></span></td><td><span class="mark m-yes"><i aria-hidden="true">✓</i><span class="sr-only">Sí</span></span></td><td><span class="mark m-yes"><i aria-hidden="true">✓</i><span class="sr-only">Sí</span></span></td><td class="us"><span class="mark m-yes"><i aria-hidden="true">✓</i><span class="sr-only">Sí</span></span></td></tr>
@@ -1150,7 +1153,7 @@
           <article class="card feature-col spot reveal">
             <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></span>
             <h4 class="relative mt-4 font-display text-[1.05rem] font-semibold tracking-tight">Email marketing</h4>
-            <ul class="relative mt-3 flex flex-wrap gap-1.5" aria-label="Herramientas"><li class="tool">Gmail</li></ul>
+            <ul class="relative mt-3 flex flex-wrap gap-1.5" aria-label="Herramientas"><li class="tool">Gmail</li><li class="tool">Hotmail</li><li class="tool">Outlook</li></ul>
             <p class="relative mt-3 text-sm leading-relaxed text-muted">Mantener la relación con instituciones y distribuidores, y enviar fichas técnicas y material para compras públicas.</p>
           </article>
           <article class="card feature-col spot reveal">
@@ -1162,7 +1165,7 @@
           <article class="card feature-col spot reveal">
             <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.2 10.8l7.6-3.6M8.2 13.2l7.6 3.6"/></svg></span>
             <h4 class="relative mt-4 font-display text-[1.05rem] font-semibold tracking-tight">Redes sociales</h4>
-            <ul class="relative mt-3 flex flex-wrap gap-1.5" aria-label="Herramientas"><li class="tool">LinkedIn</li><li class="tool">Instagram</li><li class="tool">YouTube</li></ul>
+            <ul class="relative mt-3 flex flex-wrap gap-1.5" aria-label="Herramientas"><li class="tool">LinkedIn</li><li class="tool">Instagram</li><li class="tool">YouTube</li><li class="tool">Facebook</li><li class="tool">TikTok</li></ul>
             <p class="relative mt-3 text-sm leading-relaxed text-muted">Aumentar el alcance y el reconocimiento de la marca, y llevar visitantes hacia la información completa del sitio.</p>
           </article>
           <article class="card feature-col spot reveal">
@@ -1179,18 +1182,23 @@
           <div>
             <p class="eyebrow">Inteligencia artificial</p>
             <h3 class="h2 mt-4 text-[clamp(1.5rem,1.1rem+1.2vw,2.1rem)]">IA para comunicar mejor, no para diagnosticar.</h3>
-            <p class="mt-4 max-w-[60ch] leading-relaxed text-ink-muted">Usamos IA para mejorar la segmentación, la comunicación y la captación de instituciones. Así reducimos el tiempo y el costo de llegar a cada cliente potencial y priorizamos las oportunidades con más probabilidad de convertirse en un piloto.</p>
+            <p class="mt-4 max-w-[60ch] leading-relaxed text-ink-muted">Aplicamos IA para captar, calificar y convertir a potenciales clientes institucionales, con usos concretos y viables para la etapa actual del proyecto.</p>
             <ul class="mt-8 grid gap-5 sm:grid-cols-2">
-              <li class="ai-use"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg></span><div><h4 class="font-display font-semibold tracking-tight">Segmentación de instituciones</h4><p class="mt-1 text-sm leading-relaxed text-ink-muted">Analizar datos públicos de hospitales, clínicas, municipalidades, ONG y colegios para priorizar a quienes tienen mayor probabilidad de interés.</p></div></li>
-              <li class="ai-use"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 4.6L18.5 9l-4.7 1.4L12 15l-1.8-4.6L5.5 9l4.7-1.4z"/><path d="M18 15l.7 1.8 1.8.7-1.8.7L18 20l-.7-1.8-1.8-.7 1.8-.7z"/></svg></span><div><h4 class="font-display font-semibold tracking-tight">Contenido personalizado</h4><p class="mt-1 text-sm leading-relaxed text-ink-muted">IA generativa para adaptar mensajes según el tipo de institución: detección temprana para centros de salud, campañas para municipalidades y funcionamiento offline-first para zonas con poca conectividad.</p></div></li>
-              <li class="ai-use"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 10h8M8 13h5"/></svg></span><div><h4 class="font-display font-semibold tracking-tight">Asistente virtual en el sitio</h4><p class="mt-1 text-sm leading-relaxed text-ink-muted">Un chatbot que responde preguntas frecuentes y agenda demostraciones, y deriva las consultas técnicas o clínicas al equipo.</p></div></li>
-              <li class="ai-use"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V5M4 19h16"/><path d="M8 15l3-4 3 2 4-6"/></svg></span><div><h4 class="font-display font-semibold tracking-tight">Analítica predictiva</h4><p class="mt-1 text-sm leading-relaxed text-ink-muted">Identificar qué contenidos generan más interés y qué visitantes tienen mayor probabilidad de solicitar una demostración o un piloto.</p></div></li>
+              <li class="ai-use"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 10h8M8 13h5"/></svg></span><div><h4 class="font-display font-semibold tracking-tight">Chatbot especializado</h4><p class="mt-1 text-sm leading-relaxed text-ink-muted">Atiende 24/7 solo con información validada de ARGOS (funcionamiento, ficha técnica, telemedicina, pilotos y proceso de adquisición), registra los datos de contacto y deriva a un representante las consultas clínicas, regulatorias o comerciales complejas.</p></div></li>
+              <li class="ai-use"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/></svg></span><div><h4 class="font-display font-semibold tracking-tight">Lead scoring</h4><p class="mt-1 text-sm leading-relaxed text-ink-muted">El CRM asigna puntaje según el interés mostrado, como descargar la ficha técnica, asistir a un webinar o pedir una demostración. Con suficiente historial, pasa a segmentación predictiva para priorizar a quienes tienen más probabilidad de llegar a un piloto.</p></div></li>
+              <li class="ai-use"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 4.6L18.5 9l-4.7 1.4L12 15l-1.8-4.6L5.5 9l4.7-1.4z"/><path d="M18 15l.7 1.8 1.8.7-1.8.7L18 20l-.7-1.8-1.8-.7 1.8-.7z"/></svg></span><div><h4 class="font-display font-semibold tracking-tight">Contenido personalizado y automatizado</h4><p class="mt-1 text-sm leading-relaxed text-ink-muted">IA generativa adapta los mensajes a cada segmento (hospitales y centros de salud, entidades públicas, ONG, distribuidores y profesionales) y automatiza el seguimiento después de un formulario, un webinar o una demostración.</p></div></li>
+              <li class="ai-use"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></span><div><h4 class="font-display font-semibold tracking-tight">Análisis de campañas y pruebas A/B</h4><p class="mt-1 text-sm leading-relaxed text-ink-muted">Compara versiones de mensajes y formatos para identificar los que obtienen mejor respuesta y optimizar las campañas de forma continua.</p></div></li>
             </ul>
+            <div class="mt-8 grid gap-3 sm:grid-cols-2">
+              <div class="ai-benefit"><p class="ai-benefit-k">Beneficio técnico</p><p>Automatiza tareas repetitivas, analiza más información y ofrece atención continua.</p></div>
+              <div class="ai-benefit"><p class="ai-benefit-k">Beneficio de negocio</p><p>Menor costo por lead, mayor tasa de conversión y un equipo comercial enfocado en las instituciones con mayor intención de adopción.</p></div>
+            </div>
           </div>
           <aside class="ai-limits" aria-labelledby="limits-title">
             <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg></span>
             <h4 id="limits-title" class="mt-5 font-display text-lg font-semibold tracking-tight">Límites éticos y protección de datos</h4>
-            <ul class="ticks-ink mt-4 grid gap-3 text-sm leading-relaxed text-ink-muted"><li>La IA no hace afirmaciones clínicas ni interpreta resultados: toda consulta clínica la responde el equipo.</li><li>Los datos de salud de los tamizajes nunca se usan con fines de marketing.</li><li>Tratamiento de datos personales conforme a la Ley N.° 29733.</li><li>Todo contenido generado con IA es revisado por el equipo antes de publicarse.</li></ul>
+            <p class="mt-2 text-sm leading-relaxed text-ink-muted">Por tratarse de un dispositivo médico:</p>
+            <ul class="ticks-ink mt-4 grid gap-3 text-sm leading-relaxed text-ink-muted"><li>La IA se usa solo para marketing y atención comercial: no da diagnósticos ni recomendaciones clínicas, ni perfila a niños según su estado de salud.</li><li>El chatbot se identifica como asistente automatizado.</li><li>Las afirmaciones sobre desempeño clínico son revisadas por el equipo.</li><li>No se incorporan al CRM imágenes, resultados de exámenes ni otros datos de salud pediátricos.</li><li>Solo se recopilan los datos de contacto necesarios, con consentimiento, control de acceso y medidas de seguridad, separados de la información clínica y conforme a la Ley N.° 29733.</li></ul>
           </aside>
         </div>
       </div>
@@ -1206,17 +1214,17 @@
         <div class="cmp-wrap kpi-wrap mt-6" data-scroll="none">
           <div class="cmp-scroll" tabindex="0" role="region" aria-labelledby="kpi-title">
             <table class="cmp cmp-kpi">
-              <caption class="sr-only">Indicadores de la estrategia digital, etapa del embudo, forma de medirlos y herramienta</caption>
-              <thead><tr><th scope="col">Indicador</th><th scope="col">Etapa</th><th scope="col">Cómo se mide</th><th scope="col">Herramienta</th></tr></thead>
+              <caption class="sr-only">Indicadores de la estrategia digital: etapa, forma de medirlos, herramienta y justificación</caption>
+              <thead><tr><th scope="col">Indicador</th><th scope="col">Etapa</th><th scope="col">Cómo se mide</th><th scope="col">Herramienta</th><th scope="col">Para qué</th></tr></thead>
               <tbody>
-                <tr><th scope="row">Alcance e impresiones</th><td><span class="stage">Reconocimiento</span></td><td>Usuarios alcanzados y veces que se muestra el contenido</td><td>Meta Business Suite, LinkedIn y YouTube Analytics</td></tr>
-                <tr><th scope="row">Tasa de engagement</th><td><span class="stage">Reconocimiento</span></td><td>Interacciones ÷ alcance × 100</td><td>Meta Business Suite, LinkedIn Analytics</td></tr>
-                <tr><th scope="row">Tráfico al sitio web</th><td><span class="stage">Consideración</span></td><td>Visitas y usuarios, según su canal de procedencia</td><td>Google Analytics 4</td></tr>
-                <tr><th scope="row">CTR</th><td><span class="stage">Consideración</span></td><td>Clics ÷ impresiones × 100</td><td>Google Ads, Google Analytics 4</td></tr>
-                <tr><th scope="row">Tasa de conversión</th><td><span class="stage">Conversión</span></td><td>Usuarios que solicitan información o una demostración ÷ visitantes × 100</td><td>Google Analytics 4 (eventos del formulario)</td></tr>
-                <tr><th scope="row">Leads institucionales calificados</th><td><span class="stage">Conversión</span></td><td>Contactos de hospitales, centros de salud, ONG o municipalidades</td><td>CRM</td></tr>
-                <tr><th scope="row">Solicitudes de demostración o piloto</th><td><span class="stage">Conversión</span></td><td>Instituciones que piden una reunión, demo o piloto</td><td>CRM</td></tr>
-                <tr><th scope="row">Costo por lead (CPL)</th><td><span class="stage">Eficiencia</span></td><td>Inversión en marketing digital ÷ leads obtenidos</td><td>Google Ads + CRM</td></tr>
+                <tr><th scope="row">Alcance e impresiones</th><td><span class="stage">Reconocimiento</span></td><td>Usuarios alcanzados e impresiones</td><td>Métricas nativas de LinkedIn, Instagram, Facebook, TikTok y YouTube</td><td>Saber si ARGOS gana visibilidad entre profesionales de salud e instituciones.</td></tr>
+                <tr><th scope="row">Tasa de engagement</th><td><span class="stage">Reconocimiento e interés</span></td><td>Interacciones ÷ alcance × 100</td><td>Métricas de redes sociales</td><td>Ver qué videos, infografías o resultados generan más interés y orientar el contenido.</td></tr>
+                <tr><th scope="row">Tráfico orgánico</th><td><span class="stage">Descubrimiento</span></td><td>Usuarios y sesiones desde búsqueda orgánica</td><td>Google Analytics 4, Google Search Console</td><td>Medir si el SEO funciona y si nos encuentran al buscar tamizaje visual infantil.</td></tr>
+                <tr><th scope="row">CTR</th><td><span class="stage">Consideración</span></td><td>Clics ÷ impresiones × 100</td><td>Google Ads, Search Console, anuncios en redes</td><td>Evaluar si anuncios y llamados a la acción llevan al usuario a más información.</td></tr>
+                <tr><th scope="row">Apertura y CTR de email</th><td><span class="stage">Nutrición del lead</span></td><td>Aperturas ÷ entregados × 100 y clics ÷ entregados × 100</td><td>Brevo, Mailchimp o HubSpot</td><td>Comprobar que el seguimiento mantiene el interés en una compra B2B/B2G prolongada.</td></tr>
+                <tr><th scope="row">Tasa de conversión</th><td><span class="stage">Conversión</span></td><td>Acciones objetivo ÷ visitantes × 100</td><td>Google Analytics 4, Google Tag Manager, CRM</td><td>Contar cuántos piden información, descargan la ficha, se inscriben a un webinar o piden una demo.</td></tr>
+                <tr><th scope="row">Leads institucionales calificados</th><td><span class="stage">Calificación</span></td><td>Contactos que cumplen el perfil y alcanzan el puntaje mínimo de lead scoring</td><td>CRM</td><td>Distinguir oportunidades reales de simples visitas o seguidores.</td></tr>
+                <tr><th scope="row">Costo por lead (CPL)</th><td><span class="stage">Eficiencia</span></td><td>Inversión en campaña ÷ leads calificados</td><td>Google Ads o redes + CRM</td><td>Concentrar el presupuesto en los canales que generan oportunidades al menor costo.</td></tr>
               </tbody>
             </table>
           </div>
