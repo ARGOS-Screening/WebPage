@@ -1,0 +1,2045 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ARGOS · Tamizaje visual pediátrico</title>
+<meta name="description" content="ARGOS: dispositivo portátil de tamizaje visual pediátrico que identifica factores de riesgo de ambliopía en niñas y niños de 3 a 6 años.">
+<meta name="theme-color" content="#050D1A">
+<meta name="color-scheme" content="light dark">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="es_PE">
+<meta property="og:site_name" content="ARGOS">
+<meta property="og:title" content="ARGOS · Tamizaje visual pediátrico">
+<meta property="og:description" content="Dispositivo portátil de tamizaje visual pediátrico que identifica factores de riesgo de ambliopía en niñas y niños de 3 a 6 años.">
+<meta name="twitter:card" content="summary">
+<link rel="icon" type="image/png" href="img/favicon.png">
+<link rel="apple-touch-icon" href="img/icon-180.png">
+<meta property="og:image" content="https://ejbv109.github.io/argos_webpage/img/og-image.jpg">
+<meta property="og:image:alt" content="Dispositivo ARGOS detectando los ojos de una persona en su pantalla táctil">
+<link rel="preload" as="image" href="img/argos-logo.webp" type="image/webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Sora:wght@500;600;700&display=swap">
+
+<script>
+  /* Antes del primer pintado: aplica el tema guardado y marca que hay JS (evita parpadeos) */
+  (function () {
+    var d = document.documentElement;
+    try { var t = localStorage.getItem('argos-theme'); if (t === 'light' || t === 'dark') d.setAttribute('data-theme', t); } catch (e) {}
+    if ('IntersectionObserver' in window) d.classList.add('js');
+  })();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4.3.3/dist/index.global.js"></script>
+
+<style type="text/tailwindcss">
+  /* Mapea los tokens de marca a utilidades de Tailwind (bg-surface, text-muted, from-accent, to-azure, etc.) */
+  @theme inline {
+    --color-bg: var(--bg);
+    --color-surface: var(--surface);
+    --color-surface-2: var(--surface-2);
+    --color-line: var(--line);
+    --color-fg: var(--fg);
+    --color-muted: var(--muted);
+    --color-accent: var(--accent);
+    --color-accent-2: var(--accent-2);
+    --color-accent-soft: var(--accent-soft);
+    --color-on-accent: var(--on-accent);
+    --color-caution: var(--caution);
+    --color-caution-soft: var(--caution-soft);
+    --color-ink: var(--ink);
+    --color-ink-2: var(--ink-2);
+    --color-ink-3: var(--ink-3);
+    --color-ink-line: var(--ink-line);
+    --color-ink-fg: var(--ink-fg);
+    --color-ink-muted: var(--ink-muted);
+    --color-cyan: var(--cyan);
+    --color-azure: var(--azure);
+    --color-warm: var(--warm);
+    --font-display: var(--f-display);
+    --font-sans: var(--f-body);
+    --font-mono: var(--f-mono);
+    --ease-smooth: var(--ease);
+  }
+</style>
+
+<style>
+  @layer theme, base, components, utilities;
+
+  /* Concepto: "una línea de visión". Las bandas azul noche (encabezado, hero, tecnología, pie) son iguales en
+     ambos temas; las secciones de contenido siguen el tema claro/oscuro. Cian = la luz del dispositivo,
+     azul = confianza clínica, naranja = la luz de fijación que mira el niño. */
+  
+
+  :root {
+    color-scheme: light;
+    /* Bandas azul noche */
+    --ink: #050D1A;
+    --ink-2: #0A1628;
+    --ink-3: #0F1F36;
+    --ink-line: #1B2D47;
+    --ink-fg: #EAF2FB;
+    --ink-muted: #9DB1C8;
+    --ink-error: #FF9C8F;
+    --cyan: #3DDCEB;
+    --azure: #5B84FF;
+    --warm: #FF9A3C;
+    --warm-fg: #FFD2A6;
+    --feed-bg: #02070D;
+    --glass: rgb(255 255 255 / .045);
+    --glass-line: rgb(255 255 255 / .1);
+
+    /* Tema claro (secciones de contenido) */
+    --bg: #F5F8FC;
+    --surface: #FFFFFF;
+    --surface-2: #EDF2F8;
+    --line: #DCE4EE;
+    --fg: #0A1628;
+    --muted: #4B5E75;
+    --accent: #08728A;
+    --accent-2: #3558E0;
+    --accent-soft: #E2F4F8;
+    --on-accent: #FFFFFF;
+    --caution: #8A5700;
+    --caution-soft: #FBEEDA;
+    --shadow-sm: 0 1px 2px rgb(10 22 40 / .05), 0 2px 8px -2px rgb(10 22 40 / .06);
+    --shadow-md: 0 1px 2px rgb(10 22 40 / .04), 0 14px 34px -16px rgb(10 22 40 / .2);
+    --shadow-lg: 0 2px 6px rgb(10 22 40 / .05), 0 34px 70px -30px rgb(10 22 40 / .34);
+
+    /* Tipografía: Sora para titulares, Inter para lectura, JetBrains Mono para lecturas numéricas del dispositivo */
+    --f-display: "Sora", "Inter", system-ui, sans-serif;
+    --f-body: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+    --ease: cubic-bezier(.22, 1, .36, 1);
+    --header-h: 64px;
+    --safe-top: env(safe-area-inset-top, 0px);
+  }
+  @media (min-width: 1024px) { :root { --header-h: 72px; } }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #07111F; --surface: #0C1A2D; --surface-2: #10223A; --line: #1E3350;
+      --fg: #E8F0F9; --muted: #A1B4CA; --accent: #3DDCEB; --accent-2: #86A4FF; --accent-soft: #0C2F3F;
+      --on-accent: #03121C; --caution: #F3B45C; --caution-soft: #33260F;
+      --shadow-sm: 0 1px 2px rgb(0 0 0 / .3), 0 2px 8px -2px rgb(0 0 0 / .3);
+      --shadow-md: 0 1px 2px rgb(0 0 0 / .3), 0 14px 34px -16px rgb(0 0 0 / .6);
+      --shadow-lg: 0 2px 6px rgb(0 0 0 / .3), 0 34px 70px -30px rgb(0 0 0 / .8);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #07111F; --surface: #0C1A2D; --surface-2: #10223A; --line: #1E3350;
+    --fg: #E8F0F9; --muted: #A1B4CA; --accent: #3DDCEB; --accent-2: #86A4FF; --accent-soft: #0C2F3F;
+    --on-accent: #03121C; --caution: #F3B45C; --caution-soft: #33260F;
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / .3), 0 2px 8px -2px rgb(0 0 0 / .3);
+    --shadow-md: 0 1px 2px rgb(0 0 0 / .3), 0 14px 34px -16px rgb(0 0 0 / .6);
+    --shadow-lg: 0 2px 6px rgb(0 0 0 / .3), 0 34px 70px -30px rgb(0 0 0 / .8);
+    color-scheme: dark;
+  }
+
+  html { background: var(--ink); scroll-behavior: smooth; scroll-padding-top: calc(var(--header-h) + var(--safe-top) + 16px); -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--f-body);
+    font-size: 1rem;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+    overflow-x: clip;
+  }
+  ::selection { background: color-mix(in oklab, var(--cyan) 35%, transparent); }
+  [hidden] { display: none !important; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+  @layer components {
+    .ink-scope { color-scheme: dark; }
+    h1, h2, h3, h4 { text-wrap: balance; }
+
+    /* Accesibilidad: salto al contenido y foco visible con contraste suficiente en cada banda */
+    .skip-link { position: fixed; left: 1rem; top: calc(var(--safe-top) + .75rem); z-index: 100; padding: .75rem 1.1rem; border-radius: 12px; background: var(--cyan); color: #03121C; font-weight: 600; text-decoration: none; translate: 0 -220%; transition: translate .3s var(--ease); }
+    .skip-link:focus { translate: 0 0; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+    .ink-scope :focus-visible, .ink-scope:focus-visible { outline-color: var(--cyan); }
+    .cta :focus-visible { outline-color: #fff; }
+
+    /* Tipografía */
+    .font-display { font-family: var(--f-display); letter-spacing: -0.02em; }
+    .h1 { font-family: var(--f-display); font-weight: 600; font-size: clamp(2.4rem, 1.4rem + 3vw, 4rem); line-height: 1.06; letter-spacing: -0.035em; }
+    .h2 { font-family: var(--f-display); font-weight: 600; font-size: clamp(1.9rem, 1.35rem + 1.9vw, 3rem); line-height: 1.1; letter-spacing: -0.03em; }
+    .h3 { font-family: var(--f-display); font-weight: 600; font-size: 1.2rem; line-height: 1.3; letter-spacing: -0.015em; }
+    .lede { font-size: clamp(1.05rem, .98rem + .35vw, 1.2rem); line-height: 1.7; max-width: 60ch; text-wrap: pretty; }
+    .eyebrow { display: inline-flex; align-items: center; gap: .65rem; font-size: .76rem; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); }
+    .eyebrow::before { content: ""; width: 1.6rem; height: 2px; border-radius: 2px; background: linear-gradient(90deg, currentColor, transparent); }
+    .ink-scope .eyebrow { color: var(--cyan); }
+    .mono { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+    .cite { font-size: .8em; font-weight: 600; color: var(--accent); text-decoration: none; white-space: nowrap; padding: 0 .2em; border-radius: 5px; transition: background-color .2s, color .2s; }
+    .cite:hover { background: var(--accent-soft); }
+    .ink-scope .cite { color: var(--cyan); }
+
+    /* Botones: elevación, brillo que cruza y flecha que avanza */
+    .btn { position: relative; isolation: isolate; overflow: hidden; display: inline-flex; align-items: center; justify-content: center; gap: .6rem; min-height: 48px; border-radius: 999px; padding: .8rem 1.45rem; font-weight: 600; font-size: .97rem; line-height: 1.1; letter-spacing: -.005em; text-decoration: none; white-space: nowrap; cursor: pointer; -webkit-tap-highlight-color: transparent;
+      transition: translate .35s var(--ease), box-shadow .35s var(--ease), background-color .25s, color .25s, border-color .25s; }
+    .btn::after { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: linear-gradient(115deg, transparent 30%, rgb(255 255 255 / .42) 50%, transparent 70%); translate: -120% 0; transition: translate .9s var(--ease); }
+    .btn svg { flex: none; transition: translate .35s var(--ease); }
+    .btn:active { scale: .98; }
+    @media (hover: hover) {
+      .btn:hover { translate: 0 -2px; }
+      .btn:hover::after { translate: 120% 0; }
+      .btn:hover .arrow { translate: 4px 0; }
+    }
+    .btn-sm { min-height: 40px; padding: .55rem 1.1rem; font-size: .88rem; }
+    .btn-primary { color: #03121C; background: linear-gradient(135deg, #6BEAF5 0%, var(--cyan) 42%, #6D9BFF 100%); box-shadow: inset 0 1px 0 rgb(255 255 255 / .45), 0 10px 28px -10px color-mix(in oklab, var(--cyan) 70%, transparent); }
+    .btn-primary:hover { box-shadow: inset 0 1px 0 rgb(255 255 255 / .5), 0 16px 38px -12px color-mix(in oklab, var(--cyan) 85%, transparent), 0 0 0 4px color-mix(in oklab, var(--cyan) 18%, transparent); }
+    .btn-glass { color: var(--ink-fg); background: rgb(255 255 255 / .06); border: 1px solid rgb(255 255 255 / .14); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+    .btn-glass:hover { background: rgb(255 255 255 / .1); border-color: color-mix(in oklab, var(--cyan) 55%, transparent); }
+    .btn-glass::after { background: linear-gradient(115deg, transparent 30%, rgb(255 255 255 / .12) 50%, transparent 70%); }
+    .btn-light { background: #fff; color: #083B57; box-shadow: 0 12px 30px -12px rgb(0 0 0 / .45); }
+    .btn-light:hover { box-shadow: 0 20px 40px -14px rgb(0 0 0 / .55), 0 0 0 4px rgb(255 255 255 / .22); }
+    .btn[disabled] { cursor: progress; opacity: .8; }
+    .spinner { width: 18px; height: 18px; border-radius: 50%; border: 2px solid currentColor; border-right-color: transparent; animation: spin .7s linear infinite; }
+    @keyframes spin { to { rotate: 360deg; } }
+
+    .icon-btn { display: inline-grid; place-items: center; width: 44px; height: 44px; flex: none; border-radius: 14px; border: 1px solid var(--glass-line); background: var(--glass); color: var(--ink-fg); cursor: pointer; transition: background-color .25s, border-color .25s, color .25s; }
+    .icon-btn:hover { background: rgb(255 255 255 / .09); border-color: rgb(255 255 255 / .2); }
+    .icon-btn svg { transition: rotate .5s var(--ease), scale .3s var(--ease); }
+    .icon-btn:active svg { scale: .88; }
+    #themeBtn:hover svg { rotate: 20deg; }
+    #themeBtn[data-mode="dark"] .i-moon, #themeBtn:not([data-mode="dark"]) .i-sun { display: none; }
+    #menuBtn[aria-expanded="true"] .i-open, #menuBtn:not([aria-expanded="true"]) .i-close { display: none; }
+
+    /* Encabezado de cristal: transparente sobre el hero, esmerilado al desplazarse */
+    .site-header { position: sticky; top: 0; z-index: 50; margin-bottom: calc(-1 * (var(--header-h) + var(--safe-top) + 1px)); padding-top: var(--safe-top); color: var(--ink-fg); background: transparent; border-bottom: 1px solid transparent;
+      transition: background-color .4s var(--ease), border-color .4s, box-shadow .4s; }
+    .site-header.is-scrolled, .site-header.menu-open { background: color-mix(in oklab, var(--ink) 78%, transparent); -webkit-backdrop-filter: blur(18px) saturate(170%); backdrop-filter: blur(18px) saturate(170%); border-bottom-color: var(--glass-line); box-shadow: 0 14px 34px -22px rgb(0 0 0 / .7); }
+    .header-row { height: var(--header-h); }
+    .brand { text-decoration: none; }
+    .brand svg { transition: scale .5s var(--ease); }
+    .brand:hover svg { scale: 1.06; }
+    .brand .iris { filter: drop-shadow(0 0 6px color-mix(in oklab, var(--cyan) 70%, transparent)); }
+    .nav-pill { padding: 4px; border-radius: 999px; border: 1px solid var(--glass-line); background: rgb(255 255 255 / .03); }
+    .navlink { position: relative; display: block; padding: .5rem .8rem; border-radius: 999px; color: var(--ink-muted); font-size: .9rem; font-weight: 500; text-decoration: none; transition: color .25s, background-color .25s; }
+    .navlink:hover { color: var(--ink-fg); background: rgb(255 255 255 / .05); }
+    .navlink[aria-current] { color: var(--ink-fg); background: rgb(255 255 255 / .08); box-shadow: inset 0 0 0 1px rgb(255 255 255 / .08); }
+    .navlink[aria-current]::after { content: ""; position: absolute; left: 50%; bottom: 3px; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
+    .progress { position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; pointer-events: none; }
+    .progress > span { display: block; height: 100%; transform-origin: 0 50%; transform: scaleX(0); background: linear-gradient(90deg, var(--cyan), var(--azure)); box-shadow: 0 0 12px color-mix(in oklab, var(--cyan) 60%, transparent); }
+
+    /* Menú móvil: se despliega con grid-rows y queda fuera del foco cuando está cerrado */
+    .mobile-menu { position: absolute; left: 0; right: 0; top: 100%; display: grid; grid-template-rows: 0fr; visibility: hidden; background: var(--ink); box-shadow: 0 34px 60px -30px rgb(0 0 0 / .85); transition: grid-template-rows .45s var(--ease), visibility 0s linear .45s; }
+    .mobile-menu[data-open="true"] { grid-template-rows: 1fr; visibility: visible; transition: grid-template-rows .45s var(--ease), visibility 0s; }
+    .mobile-menu > div { min-height: 0; overflow: hidden; }
+    .mobile-menu[data-open="true"] > div { border-top: 1px solid var(--glass-line); border-bottom: 1px solid var(--glass-line); }
+    .mobile-menu[data-open="true"] li { animation: menu-in .5s var(--ease) both; animation-delay: calc(var(--i, 0) * 40ms + 60ms); }
+    @keyframes menu-in { from { opacity: 0; translate: 0 -8px; } to { opacity: 1; translate: 0 0; } }
+    .m-link { display: flex; align-items: center; justify-content: space-between; min-height: 48px; padding: .7rem 1rem; border-radius: 14px; color: var(--ink-fg); font-weight: 500; text-decoration: none; transition: background-color .2s, color .2s; }
+    .m-link:hover, .m-link[aria-current] { background: rgb(255 255 255 / .06); color: var(--cyan); }
+    .m-link svg { color: var(--ink-muted); }
+
+    /* Hero */
+    .hero { position: relative; isolation: isolate; overflow: hidden; background: var(--ink); color: var(--ink-fg); padding-top: calc(var(--header-h) + var(--safe-top)); }
+    .hero::before { content: ""; position: absolute; z-index: -1; width: 1100px; height: 1100px; right: -300px; top: -260px; opacity: .5; pointer-events: none;
+      background: repeating-radial-gradient(circle at center, color-mix(in oklab, var(--cyan) 16%, transparent) 0 1px, transparent 1px 38px);
+      -webkit-mask: radial-gradient(circle, #000 0%, transparent 64%); mask: radial-gradient(circle, #000 0%, transparent 64%); }
+    .hero::after, .tech::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--cyan) 55%, transparent) 50%, transparent); }
+    .aurora { position: absolute; inset: 0; z-index: -2; overflow: hidden; pointer-events: none; }
+    .aurora > span { position: absolute; display: block; border-radius: 50%; animation: drift 22s ease-in-out infinite alternate; }
+    .aurora .a1 { width: 72vmax; height: 72vmax; max-width: 920px; max-height: 920px; right: -16%; top: -32%; background: radial-gradient(closest-side, color-mix(in oklab, var(--cyan) 30%, transparent), transparent); }
+    .aurora .a2 { width: 62vmax; height: 62vmax; max-width: 820px; max-height: 820px; left: -24%; bottom: -42%; background: radial-gradient(closest-side, color-mix(in oklab, var(--azure) 30%, transparent), transparent); animation-duration: 28s; animation-delay: -9s; }
+    .aurora .a3 { width: 38vmax; height: 38vmax; max-width: 540px; max-height: 540px; left: 36%; top: 26%; background: radial-gradient(closest-side, rgb(124 108 255 / .16), transparent); animation-duration: 32s; animation-delay: -15s; }
+    .aurora-alt .a1 { right: auto; left: -20%; top: -40%; }
+    .aurora-alt .a2 { left: auto; right: -22%; bottom: -46%; }
+    @keyframes drift { 0% { transform: translate3d(0, 0, 0) scale(1); } 50% { transform: translate3d(-3%, 4%, 0) scale(1.06); } 100% { transform: translate3d(4%, -2%, 0) scale(.96); } }
+    .grid-bg { position: absolute; inset: 0; z-index: -1; pointer-events: none;
+      background-image: linear-gradient(to right, rgb(255 255 255 / .05) 1px, transparent 1px), linear-gradient(to bottom, rgb(255 255 255 / .05) 1px, transparent 1px); background-size: 64px 64px;
+      -webkit-mask-image: radial-gradient(ellipse 70% 60% at 70% 35%, #000 10%, transparent 70%); mask-image: radial-gradient(ellipse 70% 60% at 70% 35%, #000 10%, transparent 70%); }
+    .chip { display: inline-flex; align-items: center; gap: .55rem; border-radius: 999px; padding: .42rem .9rem; font-size: .8rem; font-weight: 500; border: 1px solid var(--glass-line); background: rgb(255 255 255 / .05); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); color: var(--ink-fg); }
+    .chip-warn { border-color: color-mix(in oklab, var(--warm) 45%, transparent); color: var(--warm-fg); background: color-mix(in oklab, var(--warm) 10%, transparent); }
+    .dot-warm { width: 8px; height: 8px; flex: none; border-radius: 50%; background: var(--warm); box-shadow: 0 0 0 0 color-mix(in oklab, var(--warm) 60%, transparent); animation: pulse 2.2s infinite; }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--warm) 55%, transparent); } 70% { box-shadow: 0 0 0 9px transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+    .rise { animation: rise 1s var(--ease) both; animation-delay: var(--d, 0ms); }
+    @keyframes rise { from { opacity: 0; transform: translate3d(0, 22px, 0); filter: blur(8px); } to { opacity: 1; transform: none; filter: none; } }
+    .hero-stats { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid var(--glass-line); border-radius: 20px; overflow: hidden; background: linear-gradient(180deg, rgb(255 255 255 / .06), rgb(255 255 255 / .02)); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
+    .hero-stats > div { display: flex; flex-direction: column-reverse; justify-content: flex-end; gap: .25rem; min-width: 0; padding: 1rem 1.15rem; }
+    .hero-stats > div:nth-child(2) { border-left: 1px solid rgb(255 255 255 / .08); }
+    .hero-stats > div:nth-child(3) { grid-column: 1 / -1; border-top: 1px solid rgb(255 255 255 / .08); }
+    @media (min-width: 640px) {
+      .hero-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .hero-stats > div:nth-child(3) { grid-column: auto; border-top: 0; border-left: 1px solid rgb(255 255 255 / .08); }
+    }
+    .hero-stats dt { font-size: .76rem; line-height: 1.35; color: var(--ink-muted); }
+    .hero-stats dd { margin: 0; font-family: var(--f-display); font-size: 1.35rem; font-weight: 600; letter-spacing: -.02em; font-variant-numeric: tabular-nums; color: var(--ink-fg); white-space: nowrap; }
+
+    /* Panel de la vista infrarroja */
+    .feed-wrap { position: relative; isolation: isolate; }
+    .feed-wrap::before { content: ""; position: absolute; inset: 12% 6% -6%; z-index: -1; border-radius: 40px; background: radial-gradient(closest-side, color-mix(in oklab, var(--cyan) 45%, transparent), transparent); filter: blur(40px); opacity: .55; animation: breathe 7s ease-in-out infinite; }
+    @keyframes breathe { 0%, 100% { opacity: .4; } 50% { opacity: .7; } }
+    .feed { border-radius: 26px; padding: 1px; background: linear-gradient(160deg, rgb(255 255 255 / .24), rgb(255 255 255 / .04) 38%, color-mix(in oklab, var(--cyan) 40%, transparent)); box-shadow: 0 50px 100px -40px rgb(0 0 0 / .85); }
+    .feed-inner { border-radius: 25px; overflow: hidden; background: color-mix(in oklab, var(--ink-2) 86%, transparent); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); }
+    .feed-bar { display: flex; align-items: center; justify-content: space-between; gap: .75rem; padding: .75rem 1rem; border-bottom: 1px solid var(--glass-line); font-size: .78rem; font-weight: 500; color: var(--ink-muted); }
+    .lamp { width: 9px; height: 9px; border-radius: 50%; background: rgb(255 255 255 / .14); }
+    .feed canvas { display: block; width: 100%; max-width: 100%; aspect-ratio: 3 / 2; height: auto; background: #2b3035; }
+    .feed-ctrl { container-type: inline-size; }
+    .seg { display: inline-flex; padding: 3px; border-radius: 999px; border: 1px solid var(--glass-line); background: rgb(0 0 0 / .28); }
+    .seg button { min-height: 32px; font-size: .8rem; font-weight: 600; color: var(--ink-muted); padding: .35rem .75rem; border-radius: 999px; background: transparent; cursor: pointer; transition: background-color .25s, color .25s, box-shadow .25s; }
+    .seg button:hover { color: var(--ink-fg); }
+    .seg button[aria-pressed="true"] { background: linear-gradient(135deg, var(--cyan), #7FB0FF); color: #03121C; box-shadow: 0 4px 14px -4px color-mix(in oklab, var(--cyan) 70%, transparent); }
+    /* Deslizador: relleno cian hasta el valor */
+    .range { --fill: 70%; -webkit-appearance: none; appearance: none; display: block; width: 100%; height: 28px; background: transparent; cursor: pointer; }
+    .range::-webkit-slider-runnable-track { height: 6px; border-radius: 999px;
+      background: linear-gradient(90deg, var(--cyan) 0 var(--fill), rgb(255 255 255 / .14) var(--fill) 100%); }
+    .range::-moz-range-track { height: 6px; border-radius: 999px; background: rgb(255 255 255 / .14); }
+    .range::-moz-range-progress { height: 6px; border-radius: 999px; background: var(--cyan); }
+    .range::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; margin-top: -7px; border-radius: 50%; background: #fff; border: 4px solid var(--cyan); box-shadow: 0 0 0 6px color-mix(in oklab, var(--cyan) 18%, transparent), 0 4px 10px rgb(0 0 0 / .45); transition: box-shadow .25s, scale .25s; }
+    .range::-moz-range-thumb { width: 12px; height: 12px; border-radius: 50%; background: #fff; border: 4px solid var(--cyan); box-shadow: 0 0 0 6px color-mix(in oklab, var(--cyan) 18%, transparent), 0 4px 10px rgb(0 0 0 / .45); }
+    .range:hover::-webkit-slider-thumb, .range:active::-webkit-slider-thumb { scale: 1.12; box-shadow: 0 0 0 9px color-mix(in oklab, var(--cyan) 22%, transparent), 0 4px 10px rgb(0 0 0 / .45); }
+    .range:focus-visible { outline: none; }
+    .range:focus-visible::-webkit-slider-thumb { outline: 2px solid var(--cyan); outline-offset: 3px; }
+    .range:focus-visible::-moz-range-thumb { outline: 2px solid var(--cyan); outline-offset: 3px; }
+
+    /* Revelado al hacer scroll: animación (no transición) para no interferir con los efectos hover */
+    @keyframes reveal { from { opacity: 0; transform: translate3d(0, 28px, 0); filter: blur(6px); } to { opacity: 1; transform: none; filter: none; } }
+    .js .reveal { opacity: 0; }
+    .js .reveal.is-in { animation: reveal 1s var(--ease) var(--d, 0ms) both; }
+
+    /* Superficies base */
+    .card { position: relative; border-radius: 24px; border: 1px solid var(--line); background: var(--surface); box-shadow: var(--shadow-sm); transition: translate .5s var(--ease), box-shadow .5s var(--ease), border-color .3s; }
+    .panel { position: relative; border-radius: 28px; border: 1px solid var(--line); background: var(--surface); box-shadow: var(--shadow-md); }
+    @media (hover: hover) {
+      .card:hover { translate: 0 -5px; box-shadow: var(--shadow-lg); border-color: color-mix(in oklab, var(--accent) 38%, var(--line)); }
+    }
+    /* Foco de luz que sigue al cursor */
+    .spot { overflow: hidden; }
+    .spot::after { content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .4s;
+      background: radial-gradient(340px circle at var(--mx, 50%) var(--my, 50%), color-mix(in oklab, var(--accent) 11%, transparent), transparent 70%); }
+    .spot:hover::after { opacity: 1; }
+    .ink-scope .spot::after { background: radial-gradient(340px circle at var(--mx, 50%) var(--my, 50%), color-mix(in oklab, var(--cyan) 10%, transparent), transparent 70%); }
+    .ico { position: relative; z-index: 1; width: 48px; height: 48px; flex: none; display: grid; place-items: center; border-radius: 14px; color: var(--accent);
+      background: linear-gradient(145deg, var(--accent-soft), color-mix(in oklab, var(--accent-soft) 35%, var(--surface))); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--accent) 18%, transparent); transition: rotate .5s var(--ease), scale .5s var(--ease), box-shadow .4s; }
+    .ink-scope .ico { color: var(--cyan); background: linear-gradient(145deg, color-mix(in oklab, var(--cyan) 18%, transparent), color-mix(in oklab, var(--azure) 10%, transparent)); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--cyan) 24%, transparent); }
+    @media (hover: hover) {
+      .card:hover .ico, .flip:hover .front .ico, .pillar:hover .ico { rotate: -6deg; scale: 1.07; box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--accent) 35%, transparent), 0 10px 22px -10px color-mix(in oklab, var(--accent) 70%, transparent); }
+      .ink-scope .pillar:hover .ico { box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--cyan) 40%, transparent), 0 10px 22px -10px color-mix(in oklab, var(--cyan) 70%, transparent); }
+    }
+    .tag { position: relative; z-index: 1; display: inline-flex; align-items: center; gap: .4rem; font-size: .72rem; font-weight: 600; letter-spacing: .02em; padding: .28rem .7rem; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); background: var(--surface); white-space: nowrap; }
+    .tag-dev { color: var(--caution); background: var(--caution-soft); border-color: color-mix(in oklab, var(--caution) 25%, transparent); }
+    .tag-dev::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; animation: blink 1.8s ease-in-out infinite; }
+    @keyframes blink { 50% { opacity: .3; } }
+    .ticks li { position: relative; padding-left: 1.75rem; }
+    .ticks li::before { content: ""; position: absolute; left: 0; top: .2em; width: 1.15rem; height: 1.15rem; border-radius: 50%; background: var(--accent-soft); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--accent) 25%, transparent); }
+    .ticks li::after { content: ""; position: absolute; left: .43rem; top: calc(.2em + .28rem); width: .3rem; height: .52rem; border: solid var(--accent); border-width: 0 2px 2px 0; rotate: 45deg; }
+
+    /* Tarjetas de servicio con giro 3D */
+    .flip { perspective: 1600px; height: 100%; transition: translate .5s var(--ease); }
+    @media (hover: hover) { .flip:hover { translate: 0 -6px; } }
+    .flip-inner { display: grid; height: 100%; transform-style: preserve-3d; transition: transform .8s cubic-bezier(.3, .7, .2, 1); }
+    .flip[data-flipped="true"] .flip-inner { transform: rotateY(180deg); }
+    .face { grid-area: 1 / 1; min-width: 0; display: flex; flex-direction: column; gap: .9rem; padding: 1.75rem; border-radius: 24px; border: 1px solid var(--line); background: var(--surface); box-shadow: var(--shadow-sm); -webkit-backface-visibility: hidden; backface-visibility: hidden; position: relative; overflow: hidden; transition: box-shadow .5s var(--ease), border-color .3s; }
+    .face.back { transform: rotateY(180deg); background: linear-gradient(165deg, var(--surface-2), var(--surface) 80%); }
+    .face.front::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transform: scaleX(0); transform-origin: left; transition: transform .6s var(--ease); }
+    .face.front::after { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .4s;
+      background: radial-gradient(320px circle at var(--mx, 50%) var(--my, 50%), color-mix(in oklab, var(--accent) 12%, transparent), transparent 70%); }
+    @media (hover: hover) {
+      .flip:hover .face { box-shadow: var(--shadow-lg); }
+      .flip:hover .face.front { border-color: color-mix(in oklab, var(--accent) 40%, var(--line)); }
+      .flip:hover .face.front::before { transform: scaleX(1); }
+      .flip:hover .face.front::after { opacity: 1; }
+    }
+    .flip-btn { position: relative; z-index: 1; margin-top: auto; align-self: flex-start; display: inline-flex; align-items: center; gap: .5rem; min-height: 44px; padding: .35rem 0; font-weight: 600; font-size: .92rem; color: var(--accent); background: transparent; cursor: pointer; }
+    .flip-btn .lbl { background: linear-gradient(currentColor, currentColor) 0 100% / 0 1.5px no-repeat; transition: background-size .4s var(--ease); }
+    .flip-btn .arr { display: inline-block; transition: translate .4s var(--ease); }
+    .flip-btn:hover .lbl { background-size: 100% 1.5px; }
+    .flip-btn:hover .arr { translate: 4px 0; }
+    .flip-btn.is-back:hover .arr { translate: -4px 0; }
+
+    /* Ventajas */
+    .band-soft { background: radial-gradient(900px 420px at 0% 0%, color-mix(in oklab, var(--accent-soft) 70%, transparent), transparent 70%), radial-gradient(700px 360px at 100% 100%, color-mix(in oklab, var(--accent-2) 7%, transparent), transparent 70%), var(--surface-2); }
+    @media (min-width: 1024px) { .sticky-col { position: sticky; top: calc(var(--header-h) + 2.5rem); align-self: start; } }
+    .feature { display: flex; gap: 1rem; padding: 1.5rem; }
+
+    /* Tabla comparativa */
+    .cmp-wrap { position: relative; border-radius: 24px; border: 1px solid var(--line); background: var(--surface); box-shadow: var(--shadow-md); overflow: hidden; }
+    .cmp-wrap::after { content: ""; position: absolute; top: 0; right: 0; bottom: 0; width: 56px; pointer-events: none; background: linear-gradient(90deg, transparent, var(--surface)); transition: opacity .3s; }
+    .cmp-wrap[data-scroll="none"]::after, .cmp-wrap[data-scroll="end"]::after { opacity: 0; }
+    .cmp-scroll { overflow-x: auto; scrollbar-width: thin; }
+    .cmp { width: 100%; min-width: 680px; border-collapse: separate; border-spacing: 0; font-size: .95rem; }
+    .cmp th, .cmp td { padding: 1.05rem 1.2rem; text-align: left; vertical-align: middle; border-bottom: 1px solid var(--line); transition: background-color .2s; }
+    .cmp tbody tr:last-child > * { border-bottom: 0; }
+    .cmp thead th { font-size: .74rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; background: color-mix(in oklab, var(--surface-2) 60%, var(--surface)); }
+    .cmp tbody th { font-weight: 600; }
+    .cmp .us { background: color-mix(in oklab, var(--accent-soft) 75%, var(--surface)); box-shadow: inset 1px 0 0 color-mix(in oklab, var(--accent) 22%, transparent), inset -1px 0 0 color-mix(in oklab, var(--accent) 22%, transparent); }
+    .cmp thead .us { color: var(--accent); background: color-mix(in oklab, var(--accent-soft) 100%, var(--surface)); }
+    .cmp tbody tr:hover > :not(.us) { background: color-mix(in oklab, var(--surface-2) 55%, var(--surface)); }
+    .cmp tbody tr:hover > .us { background: color-mix(in oklab, var(--accent) 16%, var(--surface)); }
+    .cmp-matrix { min-width: 860px; }
+    .cmp-matrix td, .cmp-matrix thead th:not(:first-child) { text-align: center; }
+    .cmp-matrix thead th { text-transform: none; letter-spacing: 0; font-size: .82rem; line-height: 1.3; color: var(--fg); vertical-align: bottom; }
+    .cmp-matrix thead th:first-child { text-transform: uppercase; letter-spacing: .08em; font-size: .74rem; color: var(--muted); }
+    .cmp-matrix thead .us { color: var(--accent); font-size: .95rem; }
+    .cmp-price { display: block; margin-top: .25rem; font-family: var(--f-mono); font-size: .72rem; font-weight: 500; color: var(--muted); }
+    .cmp-matrix tbody th { font-weight: 500; }
+    .cmp-matrix .mark i { width: 1.6rem; height: 1.6rem; font-size: .85rem; }
+    .diff-card { position: relative; overflow: hidden; border-radius: 24px; padding: 1.75rem; color: var(--ink-fg); border: 1px solid color-mix(in oklab, var(--cyan) 18%, transparent);
+      background: radial-gradient(360px 200px at 100% 0%, color-mix(in oklab, var(--azure) 22%, transparent), transparent 70%), linear-gradient(160deg, var(--ink-3), var(--ink)); box-shadow: var(--shadow-md); transition: translate .5s var(--ease), box-shadow .5s var(--ease), border-color .3s; }
+    .diff-card .ico { color: var(--cyan); background: linear-gradient(145deg, color-mix(in oklab, var(--cyan) 18%, transparent), color-mix(in oklab, var(--azure) 10%, transparent)); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--cyan) 24%, transparent); }
+    .diff-card.spot::after { background: radial-gradient(340px circle at var(--mx, 50%) var(--my, 50%), color-mix(in oklab, var(--cyan) 12%, transparent), transparent 70%); }
+    @media (hover: hover) { .diff-card:hover { translate: 0 -5px; border-color: color-mix(in oklab, var(--cyan) 45%, transparent); box-shadow: var(--shadow-lg), 0 0 44px -16px color-mix(in oklab, var(--cyan) 50%, transparent); } .diff-card:hover .ico { rotate: -6deg; scale: 1.07; } }
+    .mark { display: inline-flex; align-items: center; gap: .5rem; }
+    .mark i { font-style: normal; width: 1.35rem; height: 1.35rem; flex: none; display: inline-grid; place-items: center; border-radius: 50%; font-size: .75rem; font-weight: 800; }
+    .m-yes i { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: var(--on-accent); box-shadow: 0 4px 10px -4px color-mix(in oklab, var(--accent) 70%, transparent); }
+    .m-mid i { background: var(--caution-soft); color: var(--caution); }
+    .m-no i { background: var(--surface-2); color: var(--muted); }
+
+    /* Banda de tecnología */
+    .tech { position: relative; isolation: isolate; overflow: hidden; background: var(--ink); color: var(--ink-fg); }
+    .tech .grid-bg { -webkit-mask-image: radial-gradient(ellipse 60% 50% at 20% 10%, #000 10%, transparent 70%); mask-image: radial-gradient(ellipse 60% 50% at 20% 10%, #000 10%, transparent 70%); }
+    .step { position: relative; min-width: 0; height: 100%; border: 1px solid rgb(255 255 255 / .08); background: linear-gradient(180deg, rgb(255 255 255 / .055), rgb(255 255 255 / .015)); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); border-radius: 22px; padding: 1.6rem; display: flex; flex-direction: column; gap: .7rem; overflow: hidden;
+      transition: translate .5s var(--ease), border-color .3s, box-shadow .5s var(--ease); }
+    .step::before { content: ""; position: absolute; left: 0; top: 0; height: 2px; width: 0; background: linear-gradient(90deg, var(--cyan), var(--azure) 60%, transparent); transition: width 1.2s var(--ease); transition-delay: calc(var(--d, 0ms) + 250ms); }
+    .step.is-in::before, html:not(.js) .step::before { width: 100%; }
+    @media (hover: hover) {
+      .step:hover { translate: 0 -5px; border-color: color-mix(in oklab, var(--cyan) 38%, transparent); box-shadow: 0 30px 60px -30px rgb(0 0 0 / .8), 0 0 42px -14px color-mix(in oklab, var(--cyan) 45%, transparent); }
+      .step:hover .step-num { opacity: .9; }
+    }
+    .step-num { position: absolute; right: 1.1rem; top: .5rem; font-family: var(--f-display); font-size: 3.6rem; font-weight: 700; line-height: 1; letter-spacing: -.04em; pointer-events: none; opacity: .55; transition: opacity .4s;
+      background: linear-gradient(180deg, rgb(255 255 255 / .18), transparent 85%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .step-n { font-size: .72rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--cyan); }
+    .pillar { position: relative; min-width: 0; padding: 1.4rem; border-radius: 20px; border: 1px solid rgb(255 255 255 / .07); background: rgb(255 255 255 / .025); display: flex; flex-direction: column; gap: .6rem;
+      transition: translate .5s var(--ease), border-color .3s, background-color .3s; }
+    @media (hover: hover) { .pillar:hover { translate: 0 -4px; border-color: color-mix(in oklab, var(--cyan) 35%, transparent); background: rgb(255 255 255 / .045); } }
+
+    /* Carrusel de testimonios */
+    .carousel { --pad: 1rem; display: flex; gap: 1.5rem; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; scrollbar-width: none; overscroll-behavior-x: contain;
+      padding: 1rem var(--pad) 2.5rem; margin: -1rem calc(-1 * var(--pad)) -2.5rem; scroll-padding-inline: var(--pad); border-radius: 32px; }
+    .carousel::-webkit-scrollbar { display: none; }
+    .carousel:focus-visible { outline-offset: -6px; }
+    .carousel > * { flex: 0 0 100%; min-width: 0; scroll-snap-align: start; }
+    @media (min-width: 768px) { .carousel > * { flex-basis: calc(50% - .75rem); } }
+    .quote { position: relative; display: flex; flex-direction: column; gap: 1.25rem; padding: clamp(1.6rem, 1.3rem + 1vw, 2.2rem); border-radius: 26px; background: var(--surface); border: 1px solid var(--line); box-shadow: var(--shadow-md); overflow: hidden; transition: translate .5s var(--ease), box-shadow .5s var(--ease), border-color .3s; }
+    .quote::before { content: ""; position: absolute; right: -80px; top: -80px; width: 220px; height: 220px; border-radius: 50%; pointer-events: none; background: radial-gradient(closest-side, color-mix(in oklab, var(--accent) 12%, transparent), transparent); }
+    @media (hover: hover) { .quote:hover { translate: 0 -4px; box-shadow: var(--shadow-lg); border-color: color-mix(in oklab, var(--accent) 30%, var(--line)); } }
+    .quote-mark { width: 40px; height: 40px; color: var(--accent); opacity: .85; }
+    .quote blockquote { margin: 0; font-family: var(--f-display); font-weight: 400; font-size: clamp(1.08rem, 1rem + .4vw, 1.28rem); line-height: 1.55; letter-spacing: -.01em; color: var(--fg); text-wrap: pretty; }
+    .avatar { width: 44px; height: 44px; flex: none; display: grid; place-items: center; border-radius: 50%; color: var(--on-accent); background: linear-gradient(135deg, var(--accent), var(--accent-2)); box-shadow: 0 6px 16px -6px color-mix(in oklab, var(--accent) 70%, transparent); }
+    .car-btn { width: 46px; height: 46px; display: inline-grid; place-items: center; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); color: var(--fg); box-shadow: var(--shadow-sm); cursor: pointer; transition: translate .35s var(--ease), background-color .25s, color .25s, border-color .25s, box-shadow .35s; }
+    @media (hover: hover) { .car-btn:hover { translate: 0 -2px; background: var(--accent); border-color: var(--accent); color: var(--on-accent); box-shadow: 0 10px 22px -10px color-mix(in oklab, var(--accent) 80%, transparent); } }
+    .car-btn:active { scale: .94; }
+    #carToggle[data-playing="true"] .i-play, #carToggle:not([data-playing="true"]) .i-pause { display: none; }
+    .dots { display: flex; gap: .15rem; }
+    .dots button { position: relative; width: 22px; height: 24px; cursor: pointer; transition: width .45s var(--ease); }
+    .dots button::before, .dots button::after { content: ""; position: absolute; left: 6px; right: 6px; top: 50%; height: 8px; margin-top: -4px; border-radius: 999px; }
+    .dots button::before { background: var(--line); transition: background-color .3s; }
+    .dots button::after { background: linear-gradient(90deg, var(--accent), var(--accent-2)); transform-origin: left; transform: scaleX(0); }
+    .dots button:hover::before { background: color-mix(in oklab, var(--accent) 35%, var(--line)); }
+    .dots button[aria-current="true"] { width: 50px; }
+    .dots button[aria-current="true"]::before { background: color-mix(in oklab, var(--accent) 20%, var(--line)); }
+    .dots button[aria-current="true"]::after { transform: scaleX(var(--p, 1)); }
+    .notice { display: flex; align-items: flex-start; gap: .75rem; max-width: 48rem; border-radius: 16px; padding: .95rem 1.15rem; font-size: .9rem; line-height: 1.55; color: var(--caution); background: var(--caution-soft); border: 1px solid color-mix(in oklab, var(--caution) 22%, transparent); }
+
+    /* Impacto */
+    .stat { display: flex; flex-direction: column; gap: .75rem; min-width: 0; padding: 1.75rem; }
+    .stat::before { content: ""; position: absolute; left: 1.75rem; top: 0; width: 2.75rem; height: 3px; border-radius: 0 0 3px 3px; background: linear-gradient(90deg, var(--accent), var(--accent-2)); transition: width .6s var(--ease); }
+    @media (hover: hover) { .stat:hover::before { width: calc(100% - 3.5rem); } }
+    .stat-n { font-family: var(--f-display); font-weight: 600; font-size: clamp(2.4rem, 1.9rem + 1.6vw, 3.2rem); line-height: 1; letter-spacing: -.04em; font-variant-numeric: tabular-nums; white-space: nowrap;
+      background: linear-gradient(135deg, var(--fg) 35%, color-mix(in oklab, var(--accent) 80%, var(--fg))); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .stat-n small { font-size: .45em; font-weight: 600; margin-left: .12em; letter-spacing: 0; color: var(--accent); -webkit-text-fill-color: var(--accent); }
+
+    /* Normativa */
+    .norm { display: flex; flex-direction: column; gap: .65rem; min-width: 0; padding: 1.75rem; }
+    .norm-code { position: relative; z-index: 1; align-self: flex-start; font-family: var(--f-mono); font-size: .8rem; font-weight: 600; color: var(--accent); background: var(--accent-soft); border: 1px solid color-mix(in oklab, var(--accent) 22%, transparent); padding: .3rem .7rem; border-radius: 9px; }
+    .road { display: grid; gap: 1.25rem; }
+    @media (min-width: 768px) { .road { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.5rem; } }
+    .road li { position: relative; min-width: 0; padding-left: 3rem; min-height: 2.5rem; }
+    @media (min-width: 768px) { .road li { padding-left: 0; padding-top: 3.25rem; } }
+    .road li::after { content: ""; position: absolute; left: calc(1rem - 1px); top: 2.5rem; bottom: -.75rem; width: 2px; border-radius: 2px; background: var(--line); transform-origin: top; transition: transform 1.1s var(--ease) .5s; }
+    .road li:last-child::after { display: none; }
+    @media (min-width: 768px) { .road li::after { left: 2.75rem; right: -.75rem; top: calc(1rem - 1px); bottom: auto; width: auto; height: 2px; transform-origin: left; } }
+    .road-done::after { background: linear-gradient(180deg, var(--accent), var(--warm)) !important; }
+    @media (min-width: 768px) { .road-done::after { background: linear-gradient(90deg, var(--accent), var(--warm)) !important; } }
+    .js .road-wrap:not(.is-in) .road-done::after { transform: scaleY(0); }
+    @media (min-width: 768px) { .js .road-wrap:not(.is-in) .road-done::after { transform: scaleX(0); } }
+    .road-dot { position: absolute; left: 0; top: 0; width: 2rem; height: 2rem; border-radius: 50%; display: grid; place-items: center; background: var(--surface); border: 2px solid var(--line); z-index: 1; font-size: .8rem; font-weight: 800; }
+    .road-done .road-dot { background: linear-gradient(135deg, var(--accent), var(--accent-2)); border-color: transparent; color: var(--on-accent); box-shadow: 0 6px 16px -6px color-mix(in oklab, var(--accent) 80%, transparent); }
+    .road-now .road-dot { border-color: var(--warm); animation: ring 2.4s ease-out infinite; }
+    .road-now .road-dot::before { content: ""; width: .65rem; height: .65rem; border-radius: 50%; background: var(--warm); }
+    @keyframes ring { 0% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--warm) 45%, transparent); } 70%, 100% { box-shadow: 0 0 0 12px transparent; } }
+
+    /* Llamado a la acción */
+    .cta { position: relative; isolation: isolate; overflow: hidden; border-radius: 32px; color: #fff; background: linear-gradient(120deg, #06566B 0%, #0B6F8A 38%, #2A4FCF 100%); box-shadow: 0 40px 80px -40px rgb(12 60 130 / .6); }
+    .cta::before { content: ""; position: absolute; z-index: -1; width: 760px; height: 760px; right: -220px; top: -300px; opacity: .5; pointer-events: none;
+      background: repeating-radial-gradient(circle at center, rgb(255 255 255 / .16) 0 1px, transparent 1px 32px); -webkit-mask: radial-gradient(circle, #000 0%, transparent 62%); mask: radial-gradient(circle, #000 0%, transparent 62%); }
+    .cta::after { content: ""; position: absolute; z-index: -1; inset: 0; pointer-events: none; background: radial-gradient(520px 260px at 85% 0%, rgb(61 220 235 / .35), transparent 70%), radial-gradient(420px 240px at 0% 100%, rgb(124 108 255 / .28), transparent 70%); }
+
+
+    /* Logo */
+    .logo { display: block; }
+    .logo-glow { filter: drop-shadow(0 0 18px color-mix(in oklab, var(--cyan) 35%, transparent)); }
+    .brand .logo { transition: filter .4s, scale .5s var(--ease); }
+    .brand:hover .logo { scale: 1.03; filter: drop-shadow(0 0 12px color-mix(in oklab, var(--cyan) 55%, transparent)); }
+
+
+    /* Video */
+    .video { margin-left: 0; margin-right: 0; }
+    .video-frame { position: relative; aspect-ratio: 16 / 9; border-radius: 28px; overflow: hidden; background: #02060c; border: 1px solid var(--glass-line); box-shadow: 0 50px 100px -40px rgb(0 0 0 / .85), 0 0 60px -30px color-mix(in oklab, var(--cyan) 45%, transparent); }
+    .video-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+    .video-poster { position: absolute; inset: 0; display: block; color: #fff; text-decoration: none; cursor: pointer; }
+    .video-poster img { width: 100%; height: 100%; object-fit: cover; filter: saturate(1.05); transition: scale 1.2s var(--ease), filter .5s; }
+    .video-poster::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgb(2 6 12 / .15), rgb(2 6 12 / .35) 45%, rgb(2 6 12 / .88)); }
+    .video-play { position: absolute; left: 50%; top: 45%; z-index: 2; width: 84px; height: 84px; margin: -42px 0 0 -42px; display: grid; place-items: center; border-radius: 50%; color: #03121C; padding-left: 4px;
+      background: linear-gradient(135deg, #6BEAF5, var(--cyan) 45%, #6D9BFF); box-shadow: 0 0 0 10px rgb(61 220 235 / .18), 0 20px 50px -10px rgb(61 220 235 / .7); transition: scale .45s var(--ease), box-shadow .45s var(--ease); }
+    .video-play::before { content: ""; position: absolute; inset: -10px; border-radius: 50%; border: 2px solid rgb(61 220 235 / .5); animation: ripple 2.4s ease-out infinite; }
+    @keyframes ripple { from { opacity: .9; scale: 1; } to { opacity: 0; scale: 1.5; } }
+    .video-meta { position: absolute; left: 0; right: 0; bottom: 0; z-index: 2; display: grid; gap: .35rem; padding: clamp(1.1rem, .8rem + 1.5vw, 2rem); }
+    .video-kicker { display: inline-flex; align-items: center; gap: .5rem; font-size: .72rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--warm-fg); }
+    .video-meta strong { font-family: var(--f-display); font-size: clamp(1.25rem, 1rem + 1.2vw, 2rem); font-weight: 600; letter-spacing: -.02em; }
+    .video-meta span:last-child { max-width: 56ch; font-size: clamp(.85rem, .8rem + .25vw, 1rem); color: #C9D6E4; }
+    @media (max-width: 480px) { .video-meta span:last-child { display: none; } .video-play { width: 64px; height: 64px; margin: -32px 0 0 -32px; } }
+    @media (hover: hover) { .video-poster:hover img { scale: 1.04; } .video-poster:hover .video-play { scale: 1.08; box-shadow: 0 0 0 14px rgb(61 220 235 / .2), 0 24px 60px -10px rgb(61 220 235 / .85); } }
+    .video-poster:focus-visible { outline-offset: -6px; border-radius: 28px; }
+
+    /* Galería del dispositivo */
+    .device { position: relative; isolation: isolate; overflow: hidden; color: var(--ink-fg); background: radial-gradient(900px 480px at 85% 0%, color-mix(in oklab, var(--azure) 16%, transparent), transparent 70%), linear-gradient(180deg, var(--ink), var(--ink-2)); }
+    .device .grid-bg { -webkit-mask-image: radial-gradient(ellipse 60% 50% at 80% 10%, #000 10%, transparent 70%); mask-image: radial-gradient(ellipse 60% 50% at 80% 10%, #000 10%, transparent 70%); }
+    .device .chip { font-family: var(--f-mono); font-size: .74rem; }
+    .shot { position: relative; margin: 0; display: flex; flex-direction: column; border-radius: 26px; overflow: hidden; border: 1px solid var(--glass-line); background: #02060c; box-shadow: 0 40px 80px -40px rgb(0 0 0 / .8); transition: border-color .3s, box-shadow .5s var(--ease); }
+    .shot-report img { object-position: 50% 25%; }
+    .shot-tele img { object-position: 38% 50%; }
+    /* Móvil: la foto completa arriba y el texto debajo; escritorio: texto sobre la foto */
+    .shot-btn { position: relative; display: block; width: 100%; aspect-ratio: 4 / 3; padding: 0; overflow: hidden; cursor: zoom-in; }
+    .shot img { width: 100%; height: 100%; object-fit: cover; transition: scale 1.2s var(--ease), filter .6s; }
+    .shot-cap { display: grid; gap: .3rem; padding: 1.1rem 1.25rem 1.3rem; border-top: 1px solid var(--glass-line); pointer-events: none; }
+    .shot-cap strong { font-family: var(--f-display); font-size: 1.08rem; font-weight: 600; letter-spacing: -.01em; color: #fff; }
+    .shot-cap span { max-width: 52ch; font-size: .88rem; line-height: 1.5; color: #C9D6E4; }
+    @media (min-width: 1024px) {
+      .shot { display: block; height: 440px; }
+      .shot-btn { position: absolute; inset: 0; aspect-ratio: auto; }
+      .shot::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, transparent 45%, rgb(2 6 12 / .55) 70%, rgb(2 6 12 / .92)); }
+      .shot-cap { position: absolute; left: 0; right: 0; bottom: 0; z-index: 1; padding: 1.4rem 1.5rem; border-top: 0; }
+    }
+    .shot-zoom { position: absolute; top: 1rem; right: 1rem; z-index: 2; width: 42px; height: 42px; display: grid; place-items: center; border-radius: 50%; color: #fff; background: rgb(5 13 26 / .55); border: 1px solid rgb(255 255 255 / .18); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); opacity: 0; scale: .85; transition: opacity .35s, scale .35s var(--ease); }
+    .shot-btn:focus-visible { outline-offset: -4px; border-radius: 26px; }
+    .shot-btn:focus-visible .shot-zoom { opacity: 1; scale: 1; }
+    @media (hover: hover) {
+      .shot:hover { border-color: color-mix(in oklab, var(--cyan) 45%, transparent); box-shadow: 0 40px 80px -40px rgb(0 0 0 / .8), 0 0 50px -18px color-mix(in oklab, var(--cyan) 55%, transparent); }
+      .shot:hover img { scale: 1.05; }
+      .shot:hover .shot-zoom { opacity: 1; scale: 1; }
+    }
+    @media (hover: none) { .shot-zoom { opacity: 1; scale: 1; } }
+    .lightbox { width: min(1200px, 94vw); max-height: 94vh; padding: 1.25rem; border: 1px solid var(--glass-line); border-radius: 24px; color: var(--ink-fg); background: color-mix(in oklab, var(--ink-2) 92%, transparent); box-shadow: 0 50px 120px -30px rgb(0 0 0 / .9); overflow: auto; }
+    .lightbox::backdrop { background: rgb(2 6 12 / .8); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+    .lightbox[open] { animation: lb-in .45s var(--ease) both; }
+    @keyframes lb-in { from { opacity: 0; scale: .96; } to { opacity: 1; scale: 1; } }
+    .lightbox img { display: block; width: 100%; height: auto; max-height: calc(94vh - 8rem); object-fit: contain; border-radius: 14px; }
+    .lb-close { position: sticky; top: 0; float: right; z-index: 1; margin: 0 0 .75rem .75rem; }
+
+
+    /* Estrategia digital */
+    .aud-chip { display: inline-flex; align-items: center; gap: .5rem; padding: .45rem .9rem; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); font-size: .85rem; font-weight: 500; color: var(--fg); box-shadow: var(--shadow-sm); }
+    .aud-chip::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--accent-2)); }
+    .funnel-step { position: relative; min-width: 0; padding: 1.5rem; border-radius: 22px; border: 1px solid var(--line); background: var(--surface); box-shadow: var(--shadow-sm); overflow: hidden; }
+    .funnel-step::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: linear-gradient(90deg, var(--accent), var(--accent-2)); opacity: calc(.35 + var(--k, 0) * .2); }
+    .funnel li:nth-child(2) { --k: 1; } .funnel li:nth-child(3) { --k: 2; } .funnel li:nth-child(4) { --k: 3; }
+    @media (min-width: 1024px) { .funnel-step:not(:last-child)::after { content: ""; position: absolute; right: -.1rem; top: 50%; width: .9rem; height: .9rem; border-top: 2px solid var(--line); border-right: 2px solid var(--line); rotate: 45deg; translate: 0 -50%; display: none; } }
+    .funnel-n { position: absolute; right: 1.2rem; top: .9rem; font-family: var(--f-display); font-size: 2.4rem; font-weight: 700; line-height: 1; letter-spacing: -.04em; color: color-mix(in oklab, var(--accent) 16%, transparent); }
+    .funnel-stage { font-size: .7rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
+    .feature-col { padding: 1.6rem; }
+    .tool { font-family: var(--f-mono); font-size: .7rem; font-weight: 500; padding: .2rem .55rem; border-radius: 7px; color: var(--accent); background: var(--accent-soft); border: 1px solid color-mix(in oklab, var(--accent) 18%, transparent); }
+    .ai-panel { position: relative; isolation: isolate; overflow: hidden; border-radius: 32px; padding: clamp(1.75rem, 1.2rem + 2.5vw, 3.25rem); color: var(--ink-fg);
+      background: radial-gradient(620px 320px at 100% 0%, color-mix(in oklab, var(--azure) 22%, transparent), transparent 70%), radial-gradient(520px 300px at 0% 100%, color-mix(in oklab, var(--cyan) 14%, transparent), transparent 70%), linear-gradient(160deg, var(--ink-3), var(--ink));
+      border: 1px solid color-mix(in oklab, var(--cyan) 20%, transparent); box-shadow: var(--shadow-lg); }
+    .ai-use { display: flex; gap: 1rem; align-items: flex-start; }
+    .ai-use .ico { width: 42px; height: 42px; border-radius: 12px; }
+    .ai-limits { align-self: start; border-radius: 22px; padding: 1.6rem; border: 1px solid rgb(255 255 255 / .1); background: rgb(255 255 255 / .04); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); }
+    .ai-limits .ico { color: var(--warm); background: color-mix(in oklab, var(--warm) 14%, transparent); box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--warm) 30%, transparent); }
+    .ticks-ink li { position: relative; padding-left: 1.6rem; }
+    .ticks-ink li::before { content: ""; position: absolute; left: .15rem; top: .45em; width: .55rem; height: .55rem; border-radius: 50%; border: 2px solid var(--warm); }
+    .cmp-kpi { min-width: 760px; }
+    .cmp-kpi td, .cmp-kpi th { font-size: .9rem; }
+    .cmp-kpi tbody td:last-child { font-family: var(--f-mono); font-size: .76rem; color: var(--muted); }
+    .stage { display: inline-block; font-size: .7rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: .2rem .55rem; border-radius: 999px; color: var(--accent); background: var(--accent-soft); white-space: nowrap; }
+
+    /* Preguntas frecuentes */
+    .faq { border-radius: 18px; border: 1px solid var(--line); background: var(--surface); box-shadow: var(--shadow-sm); transition: border-color .3s, box-shadow .4s var(--ease); }
+    .faq[open] { border-color: color-mix(in oklab, var(--accent) 35%, var(--line)); box-shadow: var(--shadow-md); }
+    .faq summary { display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 56px; padding: 1.05rem 1.35rem; cursor: pointer; list-style: none; font-family: var(--f-display); font-weight: 600; letter-spacing: -.01em; border-radius: 18px; }
+    .faq summary::-webkit-details-marker { display: none; }
+    .faq summary:hover { color: var(--accent); }
+    .faq-ico { position: relative; width: 28px; height: 28px; flex: none; border-radius: 50%; background: var(--accent-soft); transition: rotate .4s var(--ease), background-color .3s; }
+    .faq-ico::before, .faq-ico::after { content: ""; position: absolute; left: 50%; top: 50%; width: 11px; height: 2px; margin: -1px 0 0 -5.5px; border-radius: 2px; background: var(--accent); }
+    .faq-ico::after { rotate: 90deg; transition: rotate .4s var(--ease); }
+    .faq[open] .faq-ico { rotate: 180deg; }
+    .faq[open] .faq-ico::after { rotate: 0deg; }
+    .faq p { padding: 0 1.35rem 1.25rem; font-size: .95rem; line-height: 1.7; color: var(--muted); }
+    .faq[open] p { animation: rise .45s var(--ease) both; }
+
+    /* Pie de página */
+    .site-footer { position: relative; isolation: isolate; overflow: hidden; background: var(--ink); color: var(--ink-fg); }
+    .site-footer::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 1px; background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--cyan) 55%, transparent) 50%, transparent); }
+    .aurora-foot .a1 { right: auto; left: 30%; top: -60%; opacity: .7; }
+    .form-card { border-radius: 28px; border: 1px solid rgb(255 255 255 / .09); background: linear-gradient(180deg, rgb(255 255 255 / .055), rgb(255 255 255 / .02)); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); padding: clamp(1.5rem, 1rem + 2vw, 2.5rem); box-shadow: 0 40px 80px -40px rgb(0 0 0 / .7), inset 0 1px 0 rgb(255 255 255 / .06); }
+    .field { width: 100%; min-width: 0; min-height: 48px; background: rgb(3 9 18 / .5); border: 1px solid rgb(255 255 255 / .11); border-radius: 14px; padding: .78rem 1rem; color: var(--ink-fg); font: inherit; font-size: 1rem; transition: border-color .2s, box-shadow .25s, background-color .2s; }
+    .field::placeholder { color: color-mix(in oklab, var(--ink-muted) 70%, transparent); }
+    .field:hover { border-color: rgb(255 255 255 / .22); }
+    .field:focus { outline: none; border-color: var(--cyan); background: rgb(3 9 18 / .72); box-shadow: 0 0 0 4px color-mix(in oklab, var(--cyan) 20%, transparent); }
+    .field[aria-invalid="true"] { border-color: var(--ink-error); box-shadow: 0 0 0 3px color-mix(in oklab, var(--ink-error) 16%, transparent); }
+    select.field { -webkit-appearance: none; appearance: none; padding-right: 2.75rem; cursor: pointer;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%239DB1C8' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat; background-position: right 1rem center; }
+    textarea.field { resize: vertical; }
+    .label { display: block; font-size: .85rem; font-weight: 600; margin-bottom: .4rem; color: var(--ink-fg); }
+    .err { min-height: 1.25rem; font-size: .8rem; color: var(--ink-error); margin-top: .3rem; }
+    .flink { display: inline-flex; align-items: center; gap: .4rem; color: var(--ink-muted); text-decoration: none; transition: color .2s, translate .3s var(--ease); }
+    .flink:hover { color: var(--cyan); translate: 3px 0; }
+    .social { display: inline-flex; align-items: center; gap: .5rem; min-height: 40px; padding: .45rem .9rem; border-radius: 999px; border: 1px solid var(--glass-line); background: var(--glass); color: var(--ink-fg); font-size: .85rem; font-weight: 600; text-decoration: none; transition: border-color .25s, color .25s, translate .35s var(--ease), background-color .25s; }
+    .social:hover { border-color: color-mix(in oklab, var(--cyan) 60%, transparent); color: var(--cyan); background: color-mix(in oklab, var(--cyan) 8%, transparent); translate: 0 -2px; }
+    .refs { counter-reset: ref; display: grid; gap: .6rem; }
+    .refs li { counter-increment: ref; position: relative; padding: .35rem .5rem .35rem 2.6rem; border-radius: 10px; font-size: .8rem; line-height: 1.55; color: var(--ink-muted); overflow-wrap: anywhere; transition: background-color .4s, color .4s; }
+    .refs li::before { content: "[" counter(ref) "]"; position: absolute; left: .5rem; color: var(--cyan); font-family: var(--f-mono); font-size: .75rem; font-variant-numeric: tabular-nums; }
+    .refs a { color: var(--ink-fg); text-underline-offset: 3px; }
+    .refs a:hover { color: var(--cyan); }
+    .refs li:target { color: var(--ink-fg); background: color-mix(in oklab, var(--cyan) 10%, transparent); }
+    .ok-box { display: flex; gap: .85rem; align-items: flex-start; border-radius: 16px; border: 1px solid color-mix(in oklab, var(--cyan) 50%, transparent); background: color-mix(in oklab, var(--cyan) 10%, var(--ink-2)); padding: 1rem 1.15rem; animation: rise .6s var(--ease) both; }
+    input[type="checkbox"] { accent-color: var(--cyan); }
+
+    /* Volver arriba */
+    .to-top { position: fixed; right: max(1rem, env(safe-area-inset-right)); bottom: max(1rem, env(safe-area-inset-bottom)); z-index: 40; width: 48px; height: 48px; display: grid; place-items: center; border-radius: 50%; color: var(--ink-fg); text-decoration: none;
+      background: color-mix(in oklab, var(--ink-2) 72%, transparent); border: 1px solid rgb(255 255 255 / .14); -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); box-shadow: 0 14px 30px -12px rgb(0 0 0 / .55);
+      opacity: 0; visibility: hidden; translate: 0 14px; transition: opacity .35s, translate .45s var(--ease), visibility 0s linear .45s, border-color .25s, color .25s; }
+    .to-top.is-on { opacity: 1; visibility: visible; translate: 0 0; transition: opacity .35s, translate .45s var(--ease), visibility 0s, border-color .25s, color .25s; }
+    .to-top:hover { border-color: var(--cyan); color: var(--cyan); }
+    .to-top:focus-visible { outline-color: var(--cyan); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .rise, .dot-warm, .video-play::before, .lightbox[open], .aurora > span, .feed-wrap::before, .road-now .road-dot, .tag-dev::before, .ok-box, .mobile-menu[data-open="true"] li { animation: none !important; }
+      .js .reveal { opacity: 1; }
+      .js .reveal.is-in { animation: none; }
+      .flip-inner, .step::before, .road li::after, .mobile-menu, .btn::after { transition: none !important; }
+      .step::before { width: 100%; }
+      .js .road-wrap:not(.is-in) .road-done::after { transform: none; }
+      .carousel { scroll-behavior: auto; }
+      .shot img { transition: none; }
+      .faq[open] p { animation: none; }
+    }
+    @media print {
+      .site-header, .to-top, .skip-link, .aurora, .grid-bg { display: none !important; }
+      .js .reveal { opacity: 1 !important; animation: none !important; }
+      .hero { padding-top: 0; }
+    }
+  }
+</style>
+</head>
+<body>
+<a class="skip-link" href="#contenido">Saltar al contenido</a>
+
+<header id="top" class="site-header ink-scope">
+  <div class="header-row mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+    <a href="#inicio" class="brand flex shrink-0 items-center" aria-label="ARGOS Vision Screening System, ir al inicio">
+      <img src="img/argos-logo.webp" alt="" width="900" height="270" class="logo h-10 w-auto lg:h-12" decoding="async">
+    </a>
+
+    <nav aria-label="Principal" class="hidden xl:block">
+      <ul class="nav-pill flex items-center gap-0.5">
+        <li><a data-nav class="navlink" href="#dispositivo">Dispositivo</a></li>
+        <li><a data-nav class="navlink" href="#servicios">Servicios</a></li>
+        <li><a data-nav class="navlink" href="#ventajas">Ventajas</a></li>
+        <li><a data-nav class="navlink" href="#tecnologia">Tecnología</a></li>
+        <li><a data-nav class="navlink" href="#estrategia">Estrategia</a></li>
+        <li><a data-nav class="navlink" href="#testimonios">Testimonios</a></li>
+        <li><a data-nav class="navlink" href="#impacto">Impacto</a></li>
+        <li><a data-nav class="navlink" href="#normativa">Normativa</a></li>
+      </ul>
+    </nav>
+
+    <div class="flex items-center gap-2">
+      <button id="themeBtn" type="button" class="icon-btn" aria-label="Cambiar a tema oscuro">
+        <svg class="i-moon" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 13.2A8.5 8.5 0 1 1 10.8 3.5a6.6 6.6 0 0 0 9.7 9.7Z"/></svg>
+        <svg class="i-sun" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6 6 6M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"/></svg>
+      </button>
+      <a href="#contacto" class="btn btn-primary btn-sm hidden sm:inline-flex">Solicitar demostración</a>
+      <button id="menuBtn" type="button" class="icon-btn xl:hidden" aria-expanded="false" aria-controls="mobileMenu">
+        <span class="sr-only">Menú</span>
+        <svg class="i-open" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+        <svg class="i-close" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div id="mobileMenu" class="mobile-menu xl:hidden" data-open="false">
+    <div>
+      <nav aria-label="Principal (móvil)">
+        <ul class="mx-auto grid max-w-7xl gap-1 px-4 pb-5 pt-3 sm:px-6">
+          <li style="--i:0"><a data-nav class="m-link" href="#dispositivo">Dispositivo <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></li>
+          <li style="--i:0"><a data-nav class="m-link" href="#servicios">Servicios <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></li>
+          <li style="--i:1"><a data-nav class="m-link" href="#ventajas">Ventajas <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></li>
+          <li style="--i:2"><a data-nav class="m-link" href="#tecnologia">Tecnología <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></li>
+          <li style="--i:3"><a data-nav class="m-link" href="#estrategia">Estrategia <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></li>
+          <li style="--i:3"><a data-nav class="m-link" href="#testimonios">Testimonios <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></li>
+          <li style="--i:4"><a data-nav class="m-link" href="#impacto">Impacto <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></li>
+          <li style="--i:5"><a data-nav class="m-link" href="#normativa">Normativa <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></a></li>
+          <li style="--i:6" class="pt-3"><a class="btn btn-primary w-full" href="#contacto">Solicitar demostración</a></li>
+        </ul>
+      </nav>
+    </div>
+  </div>
+  <span class="progress" aria-hidden="true"><span id="progress"></span></span>
+</header>
+
+<main id="contenido" tabindex="-1" class="outline-none">
+  <!-- ============ HERO ============ -->
+  <section id="inicio" class="hero ink-scope" aria-labelledby="hero-title">
+    <div class="aurora" aria-hidden="true"><span class="a1"></span><span class="a2"></span><span class="a3"></span></div>
+    <div class="grid-bg" aria-hidden="true"></div>
+
+    <div class="relative mx-auto grid max-w-7xl items-center gap-14 px-4 pb-20 pt-10 sm:px-6 sm:pt-14 lg:grid-cols-[1.05fr_1fr] lg:gap-16 lg:px-8 lg:pb-28 lg:pt-20">
+      <div class="min-w-0">
+        <div class="rise flex flex-wrap gap-2" style="--d:0ms">
+          <span class="chip chip-warn"><span class="dot-warm" aria-hidden="true"></span>Tamizaje, no diagnóstico</span>
+          <span class="chip">Niñas y niños de 3 a 6 años</span>
+        </div>
+        <h1 id="hero-title" class="h1 rise mt-7" style="--d:90ms">Que ningún niño crezca viendo menos <span class="bg-linear-to-r from-cyan via-sky-300 to-azure box-decoration-clone bg-clip-text text-transparent">de lo que podría.</span></h1>
+        <p class="lede rise mt-6 text-ink-muted" style="--d:180ms">
+          ARGOS es un dispositivo portátil de tamizaje visual infantil que identifica, de forma rápida y automatizada, factores de riesgo de ambliopía en niños de 3 a 6 años. Combina fotorrefracción infrarroja y Hirschberg fotográfico, y guarda cada estudio para que especialistas lo revisen por telemedicina, incluso con conectividad limitada.
+        </p>
+        <div class="rise mt-9 flex flex-col gap-3 sm:flex-row sm:flex-wrap" style="--d:270ms">
+          <a href="#contacto" class="btn btn-primary">Solicitar una demostración
+            <svg class="arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </a>
+          <a href="#video" class="btn btn-glass">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M10 8.8v6.4l5.2-3.2z" fill="currentColor" stroke="none"/></svg>
+            Ver cómo funciona
+          </a>
+        </div>
+        <dl class="hero-stats rise mt-12" style="--d:360ms">
+          <div><dt>Evaluación y reporte</dt><dd>&lt; 15 s</dd></div>
+          <div><dt>Captura sin contacto</dt><dd>60 cm</dd></div>
+          <div><dt>Arquitectura</dt><dd>Offline-first</dd></div>
+        </dl>
+      </div>
+
+      <!-- Simulación interactiva de fotorrefracción -->
+      <figure class="rise min-w-0" style="--d:220ms">
+        <div class="feed-wrap">
+          <div class="feed">
+            <div class="feed-inner">
+              <div class="feed-bar">
+                <span class="flex min-w-0 items-center gap-3">
+                  <span class="flex gap-1.5" aria-hidden="true"><span class="lamp"></span><span class="lamp"></span><span class="lamp"></span></span>
+                  <span class="mono truncate text-[0.74rem] tracking-wide">ARGOS · Vista binocular IR</span>
+                </span>
+                <span class="flex shrink-0 items-center gap-2"><span class="dot-warm" aria-hidden="true"></span>Fijación</span>
+              </div>
+              <canvas id="eye" role="img" aria-label="Simulación de la vista infrarroja binocular de ARGOS: ambos ojos con el reflejo de fondo dentro de la pupila, el meridiano de medición resaltado y el esquema de los LEDs que se encienden en cada meridiano."></canvas>
+              <div class="feed-ctrl grid gap-5 border-t border-white/10 p-4 sm:p-5">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                  <span class="text-sm font-medium text-ink-muted" id="merLabel">Meridiano del destello</span>
+                  <div class="seg" role="group" aria-labelledby="merLabel">
+                    <button type="button" data-mer="auto" aria-pressed="true">Auto</button>
+                    <button type="button" data-mer="0" aria-pressed="false">0°</button>
+                    <button type="button" data-mer="60" aria-pressed="false">60°</button>
+                    <button type="button" data-mer="120" aria-pressed="false">120°</button>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex items-baseline justify-between gap-3">
+                    <label for="rx" class="text-sm font-semibold text-ink-fg">Error esférico simulado</label>
+                    <output id="rxOut" for="rx" class="mono rounded-md bg-cyan/10 px-2 py-0.5 text-sm font-semibold text-cyan">+2.00 D</output>
+                  </div>
+                  <input id="rx" class="range mt-2" type="range" min="-5" max="5" step="0.25" value="2" aria-valuetext="+2.00 dioptrías">
+                  <div class="mono mt-1 flex justify-between text-[0.7rem] text-ink-muted" aria-hidden="true"><span>−5 D miopía</span><span>+5 D hipermetropía</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <figcaption class="mt-5 max-w-[62ch] text-sm leading-relaxed text-ink-muted">
+          <strong class="text-ink-fg">Simulación educativa.</strong> En cada meridiano (0°, 60° y 120°) se encienden dos grupos de LEDs infrarrojos a ambos lados de la cámara. ARGOS captura ambos ojos a la vez: la pendiente de brillo dentro de cada pupila, a lo largo de esa dirección, crece con el error refractivo; con los tres meridianos se estiman esfera, cilindro y eje.
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ============ DISPOSITIVO ============ -->
+  <section id="dispositivo" class="device ink-scope" aria-labelledby="dispositivo-title">
+    <div class="grid-bg" aria-hidden="true"></div>
+    <div class="relative mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8 lg:py-28">
+      <div class="reveal grid gap-6 lg:grid-cols-2 lg:items-end lg:gap-16">
+        <div>
+          <p class="eyebrow">El dispositivo</p>
+          <h2 id="dispositivo-title" class="h2 mt-5">Un dispositivo que no le da miedo al niño <span class="bg-linear-to-r from-cyan via-sky-300 to-azure box-decoration-clone bg-clip-text text-transparent">y que el personal de salud puede revisar.</span></h2>
+        </div>
+        <div>
+          <p class="lede text-ink-muted">Prototipo funcional de ARGOS: captura infrarroja, pantalla táctil, impresora térmica y portal de telemedicina en un solo dispositivo portátil.</p>
+          <ul class="mt-6 flex flex-wrap gap-2" aria-label="Medidas del prototipo">
+            <li class="chip">296 × 165 × 191 mm</li>
+          </ul>
+        </div>
+      </div>
+
+
+      <figure id="video" class="video reveal mt-14">
+        <div class="video-frame">
+          <a class="video-poster" href="https://youtu.be/D4sbKSW_wb8" data-yt="D4sbKSW_wb8" aria-label="Reproducir video: ARGOS, concientización y uso del dispositivo">
+            <img src="https://i.ytimg.com/vi/D4sbKSW_wb8/maxresdefault.jpg" alt="" width="1280" height="720" loading="lazy" decoding="async" referrerpolicy="no-referrer" onerror="this.onerror=function(){this.onerror=null;this.src='img/argos-telemedicina-1600.webp'};this.src='https://i.ytimg.com/vi/D4sbKSW_wb8/hqdefault.jpg'">
+            <span class="video-play" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13l10.5-6.5z"/></svg></span>
+            <span class="video-meta">
+              <span class="video-kicker"><span class="dot-warm" aria-hidden="true"></span>Video</span>
+              <strong>ARGOS en acción</strong>
+              <span>Por qué es importante detectar la ambliopía a tiempo y cómo se usa el dispositivo.</span>
+            </span>
+          </a>
+        </div>
+        <figcaption class="mt-4 flex flex-wrap items-center justify-between gap-3 text-sm text-ink-muted">
+          <span>Concientización y uso de ARGOS.</span>
+          <a class="flink" href="https://youtu.be/D4sbKSW_wb8" target="_blank" rel="noopener noreferrer">Ver en YouTube <span aria-hidden="true">↗</span><span class="sr-only"> (se abre en una pestaña nueva)</span></a>
+        </figcaption>
+      </figure>
+
+      <div class="mt-6 grid gap-4 lg:grid-cols-12 lg:gap-5">
+        <figure class="shot reveal lg:col-span-7">
+          <button type="button" class="shot-btn" data-full="img/argos-captura-1600.webp" data-alt="Pantalla del dispositivo ARGOS mostrando el rostro de una persona en infrarrojo con el mensaje «Ojos detectados correctamente»." data-caption="Captura guiada. La pantalla confirma que detectó ambos ojos antes de medir, con luz infrarroja invisible para el niño." aria-label="Ampliar imagen: Captura guiada">
+            <img src="img/argos-captura-800.webp" srcset="img/argos-captura-800.webp 800w, img/argos-captura-1600.webp 1600w" sizes="(min-width: 1024px) 58vw, (min-width: 640px) 90vw, 100vw" alt="Pantalla del dispositivo ARGOS mostrando el rostro de una persona en infrarrojo con el mensaje «Ojos detectados correctamente»." width="1600" height="1004" loading="eager" decoding="async">
+            <span class="shot-zoom" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></span>
+          </button>
+          <figcaption class="shot-cap"><strong>Captura guiada</strong><span>La pantalla confirma que detectó ambos ojos antes de medir, con luz infrarroja invisible para el niño.</span></figcaption>
+        </figure>
+        <figure class="shot reveal lg:col-span-5">
+          <button type="button" class="shot-btn" data-full="img/argos-dimensiones-1600.webp" data-alt="Vistas frontal y lateral del dispositivo ARGOS, azul con asas color crema y un anillo de luces naranjas alrededor de la cámara, con sus medidas en milímetros." data-caption="Pensado para niños. Carcasa ergonómica con asas y luz de fijación naranja. Medidas del prototipo: 296 × 165 × 191 mm." aria-label="Ampliar imagen: Pensado para niños">
+            <img src="img/argos-dimensiones-800.webp" srcset="img/argos-dimensiones-800.webp 800w, img/argos-dimensiones-1600.webp 1600w" sizes="(min-width: 1024px) 40vw, (min-width: 640px) 90vw, 100vw" alt="Vistas frontal y lateral del dispositivo ARGOS, azul con asas color crema y un anillo de luces naranjas alrededor de la cámara, con sus medidas en milímetros." width="1600" height="1200" loading="lazy" decoding="async">
+            <span class="shot-zoom" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></span>
+          </button>
+          <figcaption class="shot-cap"><strong>Pensado para niños</strong><span>Carcasa ergonómica con asas y luz de fijación naranja. Medidas del prototipo: 296 × 165 × 191 mm.</span></figcaption>
+        </figure>
+        <figure class="shot shot-tele reveal lg:col-span-5">
+          <button type="button" class="shot-btn" data-full="img/argos-telemedicina-1600.webp" data-alt="Portal web de telemedicina de ARGOS en una laptop, junto al dispositivo mostrando los resultados del examen." data-caption="Revisión por telemedicina. Un especialista revisa a distancia las imágenes de cada meridiano y valida el resultado en el portal clínico." aria-label="Ampliar imagen: Revisión por telemedicina">
+            <img src="img/argos-telemedicina-800.webp" srcset="img/argos-telemedicina-800.webp 800w, img/argos-telemedicina-1600.webp 1600w" sizes="(min-width: 1024px) 40vw, (min-width: 640px) 90vw, 100vw" alt="Portal web de telemedicina de ARGOS en una laptop, junto al dispositivo mostrando los resultados del examen." width="1600" height="1200" loading="lazy" decoding="async">
+            <span class="shot-zoom" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></span>
+          </button>
+          <figcaption class="shot-cap"><strong>Revisión por telemedicina</strong><span>Un especialista revisa a distancia las imágenes de cada meridiano y valida el resultado en el portal clínico.</span></figcaption>
+        </figure>
+        <figure class="shot shot-report reveal lg:col-span-7">
+          <button type="button" class="shot-btn" data-full="img/argos-reporte-1600.webp" data-alt="Reporte impreso de ARGOS con los valores de refracción de cada ojo y la recomendación, junto al dispositivo imprimiéndolo." data-caption="Reporte impreso al instante. Esfera, cilindro, eje, estrabismo y recomendación de derivación, sin computadora ni conexión." aria-label="Ampliar imagen: Reporte impreso al instante">
+            <img src="img/argos-reporte-800.webp" srcset="img/argos-reporte-800.webp 800w, img/argos-reporte-1600.webp 1600w" sizes="(min-width: 1024px) 58vw, (min-width: 640px) 90vw, 100vw" alt="Reporte impreso de ARGOS con los valores de refracción de cada ojo y la recomendación, junto al dispositivo imprimiéndolo." width="1600" height="1200" loading="lazy" decoding="async">
+            <span class="shot-zoom" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg></span>
+          </button>
+          <figcaption class="shot-cap"><strong>Reporte impreso al instante</strong><span>Esfera, cilindro, eje, estrabismo y recomendación de derivación, sin computadora ni conexión.</span></figcaption>
+        </figure>
+      </div>
+      <p class="mt-6 text-xs text-ink-muted">Imágenes del prototipo en desarrollo. Las personas que aparecen son parte del equipo de pruebas.</p>
+    </div>
+  </section>
+
+  <!-- ============ SERVICIOS ============ -->
+  <section id="servicios" class="relative py-24 lg:py-32" aria-labelledby="servicios-title">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="reveal grid gap-6 lg:grid-cols-2 lg:items-end lg:gap-16">
+        <div>
+          <p class="eyebrow">Servicios</p>
+          <h2 id="servicios-title" class="h2 mt-5">Todo el tamizaje visual en <span class="bg-linear-to-r from-accent to-accent-2 box-decoration-clone bg-clip-text text-transparent">un solo dispositivo portátil.</span></h2>
+        </div>
+        <p class="lede text-muted">ARGOS cubre el recorrido completo: captura, análisis, reporte y seguimiento. Gira cada tarjeta para ver el detalle técnico de cada servicio.</p>
+      </div>
+
+      <div class="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6">
+        <!-- 1 -->
+        <article class="flip reveal" data-flipped="false">
+          <div class="flip-inner">
+            <div class="face front">
+              <div class="flex items-start justify-between gap-3">
+                <span class="ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3.2"/><path d="M12 2v2M12 20v2"/></svg></span>
+                <span class="tag">Refracción</span>
+              </div>
+              <h3 class="h3 mt-2">Tamizaje refractivo</h3>
+              <p class="leading-relaxed text-muted">Estima esfera, cilindro y eje con fotorrefracción excéntrica infrarroja en tres meridianos, sin tocar al niño.</p>
+              <button type="button" class="flip-btn" data-flip aria-expanded="false"><span class="lbl">Ver detalle</span> <span class="arr" aria-hidden="true">→</span></button>
+            </div>
+            <div class="face back" aria-hidden="true">
+              <h3 class="h3">Cómo lo hace</h3>
+              <ul class="ticks grid gap-2.5 text-sm leading-relaxed text-muted">
+                <li>Destellos infrarrojos en 0°, 60° y 120°, invisibles para el niño.</li>
+                <li>Esfera, cilindro y eje de cada ojo.</li>
+                <li>Umbrales de riesgo según las guías AAPOS.</li>
+              </ul>
+              <button type="button" class="flip-btn is-back" data-flip><span class="arr" aria-hidden="true">←</span> <span class="lbl">Volver</span></button>
+            </div>
+          </div>
+        </article>
+        <!-- 2 -->
+        <article class="flip reveal" data-flipped="false">
+          <div class="flip-inner">
+            <div class="face front">
+              <div class="flex items-start justify-between gap-3">
+                <span class="ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="12" r="4"/><circle cx="17" cy="12" r="4"/><circle cx="7.8" cy="11.2" r="1" fill="currentColor"/><circle cx="18.4" cy="11.2" r="1" fill="currentColor"/></svg></span>
+                <span class="tag tag-dev">En desarrollo</span>
+              </div>
+              <h3 class="h3 mt-2">Alineación ocular</h3>
+              <p class="leading-relaxed text-muted">Analiza el reflejo corneal de ambos ojos (método de Hirschberg) para señalar posibles desviaciones.</p>
+              <button type="button" class="flip-btn" data-flip aria-expanded="false"><span class="lbl">Ver detalle</span> <span class="arr" aria-hidden="true">→</span></button>
+            </div>
+            <div class="face back" aria-hidden="true">
+              <h3 class="h3">Cómo lo hace</h3>
+              <ul class="ticks grid gap-2.5 text-sm leading-relaxed text-muted">
+                <li>Mide el desplazamiento del reflejo corneal respecto al centro pupilar.</li>
+                <li>Entrega un valor aproximado de la desviación en dioptrías prismáticas (Δ).</li>
+              </ul>
+              <button type="button" class="flip-btn is-back" data-flip><span class="arr" aria-hidden="true">←</span> <span class="lbl">Volver</span></button>
+            </div>
+          </div>
+        </article>
+        <!-- 3 -->
+        <article class="flip reveal" data-flipped="false">
+          <div class="flip-inner">
+            <div class="face front">
+              <div class="flex items-start justify-between gap-3">
+                <span class="ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 8V3h10v5"/><rect x="3" y="8" width="18" height="8" rx="2"/><path d="M7 14h10v7H7z"/><path d="M10 17.5h4"/></svg></span>
+                <span class="tag">Resultado</span>
+              </div>
+              <h3 class="h3 mt-2">Reporte impreso inmediato</h3>
+              <p class="leading-relaxed text-muted">La impresora térmica integrada entrega el resultado en la misma consulta, sin computadora ni conexión.</p>
+              <button type="button" class="flip-btn" data-flip aria-expanded="false"><span class="lbl">Ver detalle</span> <span class="arr" aria-hidden="true">→</span></button>
+            </div>
+            <div class="face back" aria-hidden="true">
+              <h3 class="h3">Qué incluye</h3>
+              <ul class="ticks grid gap-2.5 text-sm leading-relaxed text-muted">
+                <li>Clasificación de riesgo por ojo y recomendación de derivación.</li>
+                <li>Esfera, cilindro, eje y desviación ocular de cada ojo.</li>
+                <li>Leyenda visible: "Tamizaje, no diagnóstico".</li>
+              </ul>
+              <button type="button" class="flip-btn is-back" data-flip><span class="arr" aria-hidden="true">←</span> <span class="lbl">Volver</span></button>
+            </div>
+          </div>
+        </article>
+        <!-- 4 -->
+        <article class="flip reveal" data-flipped="false">
+          <div class="flip-inner">
+            <div class="face front">
+              <div class="flex items-start justify-between gap-3">
+                <span class="ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 18a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 9.5a4 4 0 0 1 0 8.5"/><path d="M12 12v8M9 17l3 3 3-3"/></svg></span>
+                <span class="tag">Telesalud</span>
+              </div>
+              <h3 class="h3 mt-2">Portal clínico</h3>
+              <p class="leading-relaxed text-muted">Guarda los resultados y los envía cuando hay conectividad, para que un especialista los revise a distancia.</p>
+              <button type="button" class="flip-btn" data-flip aria-expanded="false"><span class="lbl">Ver detalle</span> <span class="arr" aria-hidden="true">→</span></button>
+            </div>
+            <div class="face back" aria-hidden="true">
+              <h3 class="h3">Cómo funciona</h3>
+              <ul class="ticks grid gap-2.5 text-sm leading-relaxed text-muted">
+                <li>Diseño offline: el tamizaje nunca espera a la red.</li>
+                <li>Almacenamiento y reenvío hacia un portal web seguro.</li>
+                <li>Tratamiento de datos conforme a la Ley N.° 29733.</li>
+              </ul>
+              <button type="button" class="flip-btn is-back" data-flip><span class="arr" aria-hidden="true">←</span> <span class="lbl">Volver</span></button>
+            </div>
+          </div>
+        </article>
+        <!-- 5 -->
+        <article class="flip reveal" data-flipped="false">
+          <div class="flip-inner">
+            <div class="face front">
+              <div class="flex items-start justify-between gap-3">
+                <span class="ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="7" width="16" height="10" rx="2"/><path d="M22 11v2"/><path d="M7 10v4M10.5 10v4M14 10v4"/></svg></span>
+                <span class="tag">Campo</span>
+              </div>
+              <h3 class="h3 mt-2">Campañas de tamizaje</h3>
+              <p class="leading-relaxed text-muted">Batería recargable y dispositivo portátil para jornadas en colegios y campañas comunitarias.</p>
+              <button type="button" class="flip-btn" data-flip aria-expanded="false"><span class="lbl">Ver detalle</span> <span class="arr" aria-hidden="true">→</span></button>
+            </div>
+            <div class="face back" aria-hidden="true">
+              <h3 class="h3">Listo para salir</h3>
+              <ul class="ticks grid gap-2.5 text-sm leading-relaxed text-muted">
+                <li>Batería recargable con 4 horas de autonomía.</li>
+                <li>Pantalla de 7 pulgadas con un flujo de uso claro.</li>
+                <li>Carcasa ergonómica con textura de agarre.</li>
+              </ul>
+              <button type="button" class="flip-btn is-back" data-flip><span class="arr" aria-hidden="true">←</span> <span class="lbl">Volver</span></button>
+            </div>
+          </div>
+        </article>
+        <!-- 6 -->
+        <article class="flip reveal" data-flipped="false">
+          <div class="flip-inner">
+            <div class="face front">
+              <div class="flex items-start justify-between gap-3">
+                <span class="ico"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c0 1.5 2.7 3 6 3s6-1.5 6-3v-5"/></svg></span>
+                <span class="tag">Soporte</span>
+              </div>
+              <h3 class="h3 mt-2">Capacitación y soporte</h3>
+              <p class="leading-relaxed text-muted">Formación para el personal de salud y soporte técnico local para distribuidores y establecimientos.</p>
+              <button type="button" class="flip-btn" data-flip aria-expanded="false"><span class="lbl">Ver detalle</span> <span class="arr" aria-hidden="true">→</span></button>
+            </div>
+            <div class="face back" aria-hidden="true">
+              <h3 class="h3">Qué ofrecemos</h3>
+              <ul class="ticks grid gap-2.5 text-sm leading-relaxed text-muted">
+                <li>Manual de usuario y guía rápida en español.</li>
+                <li>Capacitación para el personal de salud.</li>
+                <li>Mantenimiento y soporte técnico en Lima.</li>
+              </ul>
+              <button type="button" class="flip-btn is-back" data-flip><span class="arr" aria-hidden="true">←</span> <span class="lbl">Volver</span></button>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ VENTAJAS ============ -->
+  <section id="ventajas" class="band-soft border-y border-line py-24 lg:py-32" aria-labelledby="ventajas-title">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
+        <div class="sticky-col reveal min-w-0">
+          <p class="eyebrow">Propuesta de valor</p>
+          <h2 id="ventajas-title" class="h2 mt-5">Tamizaje visual accesible <span class="bg-linear-to-r from-accent to-accent-2 box-decoration-clone bg-clip-text text-transparent">para el primer nivel de atención.</span></h2>
+          <p class="lede mt-6 text-muted">ARGOS lleva el tamizaje instrumental a donde más se necesita: consultorios CRED, colegios y campañas comunitarias. Es un dispositivo portátil, de bajo costo y desarrollado en el Perú, que funciona sin internet, entrega un reporte al instante y complementa el tamizaje que establece la Guía Técnica del MINSA <a class="cite" href="#ref6">[6]</a>.</p>
+        </div>
+
+        <ul class="grid gap-4 sm:grid-cols-2">
+          <li class="card feature spot reveal">
+            <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="7" r="3.5"/><path d="M5.5 21v-2a6.5 6.5 0 0 1 13 0v2"/></svg></span>
+            <div class="relative min-w-0"><h3 class="font-display text-[1.02rem] font-semibold tracking-tight">Child-friendly desde los 3 años</h3><p class="mt-1.5 text-sm leading-relaxed text-muted">El niño no necesita leer ni responder: basta con que mire una luz naranja unos segundos.</p></div>
+          </li>
+          <li class="card feature spot reveal">
+            <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M14.8 9.2c-.5-.9-1.6-1.4-2.8-1.4-1.6 0-2.8.9-2.8 2.1 0 2.8 5.6 1.4 5.6 4.2 0 1.2-1.2 2.1-2.8 2.1-1.3 0-2.4-.6-2.9-1.5M12 6v1.8M12 16.2V18"/></svg></span>
+            <div class="relative min-w-0"><h3 class="font-display text-[1.02rem] font-semibold tracking-tight">Costo accesible</h3><p class="mt-1.5 text-sm leading-relaxed text-muted">Arquitectura con componentes de bajo costo, cuya factibilidad para fotorrefracción ya está documentada <a class="cite" href="#ref5">[5]</a>.</p></div>
+          </li>
+          <li class="card feature spot reveal">
+            <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="3" width="12" height="18" rx="2.5"/><path d="M13 7l-2.5 5h3L11 17"/></svg></span>
+            <div class="relative min-w-0"><h3 class="font-display text-[1.02rem] font-semibold tracking-tight">Autonomía total</h3><p class="mt-1.5 text-sm leading-relaxed text-muted">Batería, pantalla e impresora integradas. Funciona sin internet y sin computadora.</p></div>
+          </li>
+          <li class="card feature spot reveal">
+            <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-5.6-7-11a7 7 0 0 1 14 0c0 5.4-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg></span>
+            <div class="relative min-w-0"><h3 class="font-display text-[1.02rem] font-semibold tracking-tight">Desarrollado en el Perú</h3><p class="mt-1.5 text-sm leading-relaxed text-muted">Diseño y mantenimiento locales, con repuestos disponibles en el mercado nacional.</p></div>
+          </li>
+          <li class="card feature spot reveal">
+            <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V5M4 19h16"/><path d="M8 15l3-4 3 2 4-6"/></svg></span>
+            <div class="relative min-w-0"><h3 class="font-display text-[1.02rem] font-semibold tracking-tight">Umbrales basados en evidencia</h3><p class="mt-1.5 text-sm leading-relaxed text-muted">Criterios de derivación por edad alineados con las guías AAPOS 2021 <a class="cite" href="#ref4">[4]</a>.</p></div>
+          </li>
+          <li class="card feature spot reveal">
+            <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg></span>
+            <div class="relative min-w-0"><h3 class="font-display text-[1.02rem] font-semibold tracking-tight">Seguro por diseño</h3><p class="mt-1.5 text-sm leading-relaxed text-muted">Luz infrarroja evaluada según IEC 62471 a la distancia de uso <a class="cite" href="#ref7">[7]</a>.</p></div>
+          </li>
+        </ul>
+      </div>
+
+      <div class="mt-20">
+        <div class="reveal max-w-3xl">
+          <p class="eyebrow">Ventaja competitiva</p>
+          <h3 class="h2 mt-5 text-[clamp(1.6rem,1.2rem+1.4vw,2.35rem)]">¿Qué hace diferente a ARGOS?</h3>
+        </div>
+        <div class="mt-10 grid gap-4 md:grid-cols-3 lg:gap-5">
+          <article class="diff-card spot reveal">
+            <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 21V8l8-5 8 5v13"/><path d="M9 21v-5h6v5M12 8v5M9.5 10.5h5"/></svg></span>
+            <h4 class="relative mt-5 font-display text-lg font-semibold tracking-tight">Acceso clínico al INO</h4>
+            <p class="relative mt-2 text-sm leading-relaxed text-ink-muted">Convenio PUCP – INO: acceso a un instituto nacional de referencia, a población pediátrica y a un estándar clínico de comparación.</p>
+          </article>
+          <article class="diff-card spot reveal">
+            <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5.5" rx="7" ry="2.5"/><path d="M5 5.5v6c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-6M5 11.5v6c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5v-6"/></svg></span>
+            <h4 class="relative mt-5 font-display text-lg font-semibold tracking-tight">Dataset de calibración peruano</h4>
+            <p class="relative mt-2 text-sm leading-relaxed text-ink-muted">La fotorrefracción no mide dioptrías: mide el brillo pupilar y lo convierte con un factor de escala que depende de la reflectividad del fondo de ojo. Ninguna cohorte publicada caracteriza a la población peruana; ARGOS se calibrará con ella.</p>
+          </article>
+          <article class="diff-card spot reveal">
+            <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><path d="M15.5 8.5L21 3M18 3h3v3"/></svg></span>
+            <h4 class="relative mt-5 font-display text-lg font-semibold tracking-tight">Nicho sin oferta equivalente</h4>
+            <p class="relative mt-2 text-sm leading-relaxed text-ink-muted">En el Perú no hay fotorrefractómetros disponibles, solo autorrefractómetros, y ningún dispositivo calibrado para población peruana tiene un precio accesible para el primer nivel de atención.</p>
+          </article>
+        </div>
+      </div>
+
+      <div class="reveal mt-20">
+        <div class="flex flex-wrap items-end justify-between gap-3">
+          <h3 id="cmp-title" class="h3 text-[1.4rem]">Matriz comparativa</h3>
+          <p class="flex items-center gap-1.5 text-xs font-medium text-muted lg:hidden" aria-hidden="true">Desliza para comparar
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </p>
+        </div>
+        <div class="cmp-wrap mt-6" data-scroll="none">
+          <div class="cmp-scroll" tabindex="0" role="region" aria-labelledby="cmp-title">
+            <table class="cmp cmp-matrix">
+              <caption class="sr-only">Comparación de ARGOS con otros fotoscreeners: Plusoptix Vision Screener, Spot Vision Screener, 2WIN de Adaptica y un fotorrefractor con minicomputador</caption>
+              <thead>
+                <tr><th scope="col">Criterio</th><th scope="col"><span class="block">Plusoptix Vision Screener</span><span class="cmp-price">&gt; US$ 6 000</span></th><th scope="col"><span class="block">Spot Vision Screener</span><span class="cmp-price">&gt; US$ 7 000</span></th><th scope="col"><span class="block">2WIN de Adaptica</span><span class="cmp-price">&gt; US$ 4 600</span></th><th scope="col"><span class="block">Fotorrefractor con minicomputador <a class="cite" href="#ref5">[5]</a></span><span class="cmp-price">~ US$ 120</span></th><th scope="col" class="us"><span class="block">ARGOS</span><span class="cmp-price">Nuestra propuesta</span></th></tr>
+              </thead>
+              <tbody>
+                <tr><th scope="row">Portabilidad</th><td><span class="mark m-mid"><i aria-hidden="true">±</i><span class="sr-only">Parcial</span></span></td><td><span class="mark m-yes"><i aria-hidden="true">✓</i><span class="sr-only">Sí</span></span></td><td><span class="mark m-yes"><i aria-hidden="true">✓</i><span class="sr-only">Sí</span></span></td><td><span class="mark m-yes"><i aria-hidden="true">✓</i><span class="sr-only">Sí</span></span></td><td class="us"><span class="mark m-yes"><i aria-hidden="true">✓</i><span class="sr-only">Sí</span></span></td></tr>
+                <tr><th scope="row">Bajo costo</th><td><span class="mark m-no"><i aria-hidden="true">–</i><span class="sr-only">No</span></span></td><td><span class="mark m-no"><i aria-hidden="true">–</i><span class="sr-only">No</span></span></td><td><span class="mark m-no"><i aria-hidden="true">–</i><span class="sr-only">No</span></span></td><td><span class="mark m-yes"><i aria-hidden="true">✓</i><span class="sr-only">Sí</span></span></td><td class="us"><span class="mark m-yes"><i aria-hidden="true">✓</i><span class="sr-only">Sí</span></span></td></tr>
+                <tr><th scope="row">Refracción + estrabismo en un solo sistema</th><td><span class="mark m-yes"><i aria-hidden="true">✓</i><span class="sr-only">Sí</span></span></td><td><span class="mark m-yes"><i aria-hidden="true">✓</i><span class="sr-only">Sí</span></span></td><td><span class="mark m-yes"><i aria-hidden="true">✓</i><span class="sr-only">Sí</span></span></td><td><span class="mark m-no"><i aria-hidden="true">–</i><span class="sr-only">No</span></span></td><td class="us"><span class="mark m-yes"><i aria-hidden="true">✓</i><span class="sr-only">Sí</span></span></td></tr>
+                <tr><th scope="row">Flujo automatizado</th><td><span class="mark m-yes"><i aria-hidden="true">✓</i><span class="sr-only">Sí</span></span></td><td><span class="mark m-yes"><i aria-hidden="true">✓</i><span class="sr-only">Sí</span></span></td><td><span class="mark m-mid"><i aria-hidden="true">±</i><span class="sr-only">Parcial</span></span></td><td><span class="mark m-mid"><i aria-hidden="true">±</i><span class="sr-only">Parcial</span></span></td><td class="us"><span class="mark m-yes"><i aria-hidden="true">✓</i><span class="sr-only">Sí</span></span></td></tr>
+                <tr><th scope="row">Telemedicina integrada</th><td><span class="mark m-no"><i aria-hidden="true">–</i><span class="sr-only">No</span></span></td><td><span class="mark m-no"><i aria-hidden="true">–</i><span class="sr-only">No</span></span></td><td><span class="mark m-no"><i aria-hidden="true">–</i><span class="sr-only">No</span></span></td><td><span class="mark m-no"><i aria-hidden="true">–</i><span class="sr-only">No</span></span></td><td class="us"><span class="mark m-yes"><i aria-hidden="true">✓</i><span class="sr-only">Sí</span></span></td></tr>
+                <tr><th scope="row">Registro histórico de evaluaciones</th><td><span class="mark m-mid"><i aria-hidden="true">±</i><span class="sr-only">Parcial</span></span></td><td><span class="mark m-mid"><i aria-hidden="true">±</i><span class="sr-only">Parcial</span></span></td><td><span class="mark m-yes"><i aria-hidden="true">✓</i><span class="sr-only">Sí</span></span></td><td><span class="mark m-no"><i aria-hidden="true">–</i><span class="sr-only">No</span></span></td><td class="us"><span class="mark m-yes"><i aria-hidden="true">✓</i><span class="sr-only">Sí</span></span></td></tr>
+                <tr><th scope="row">Diseño lúdico para niños de 3 a 6 años</th><td><span class="mark m-mid"><i aria-hidden="true">±</i><span class="sr-only">Parcial</span></span></td><td><span class="mark m-no"><i aria-hidden="true">–</i><span class="sr-only">No</span></span></td><td><span class="mark m-yes"><i aria-hidden="true">✓</i><span class="sr-only">Sí</span></span></td><td><span class="mark m-no"><i aria-hidden="true">–</i><span class="sr-only">No</span></span></td><td class="us"><span class="mark m-yes"><i aria-hidden="true">✓</i><span class="sr-only">Sí</span></span></td></tr>
+                <tr><th scope="row">Reporte impreso</th><td><span class="mark m-no"><i aria-hidden="true">–</i><span class="sr-only">No</span></span></td><td><span class="mark m-no"><i aria-hidden="true">–</i><span class="sr-only">No</span></span></td><td><span class="mark m-no"><i aria-hidden="true">–</i><span class="sr-only">No</span></span></td><td><span class="mark m-no"><i aria-hidden="true">–</i><span class="sr-only">No</span></span></td><td class="us"><span class="mark m-yes"><i aria-hidden="true">✓</i><span class="sr-only">Sí</span></span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="mt-4 flex flex-wrap items-center justify-between gap-3 text-xs text-muted">
+          <p class="flex flex-wrap items-center gap-4"><span class="mark m-yes"><i aria-hidden="true">✓</i>Sí</span><span class="mark m-mid"><i aria-hidden="true">±</i>Parcial</span><span class="mark m-no"><i aria-hidden="true">–</i>No</span></p>
+          <p>Precios referenciales. Comparación elaborada por el equipo ARGOS.</p>
+        </div>
+      </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TECNOLOGÍA Y ESTRATEGIA DIGITAL ============ -->
+  <section id="tecnologia" class="tech ink-scope" aria-labelledby="tecnologia-title">
+    <div class="aurora aurora-alt" aria-hidden="true"><span class="a1"></span><span class="a2"></span></div>
+    <div class="grid-bg" aria-hidden="true"></div>
+
+    <div class="relative mx-auto max-w-7xl px-4 py-24 sm:px-6 lg:px-8 lg:py-32">
+      <div class="reveal max-w-3xl">
+        <p class="eyebrow">Tecnología</p>
+        <h2 id="tecnologia-title" class="h2 mt-5">Del destello infrarrojo al reporte impreso, <span class="bg-linear-to-r from-cyan via-sky-300 to-azure box-decoration-clone bg-clip-text text-transparent">en seis pasos trazables.</span></h2>
+        <p class="lede mt-6 text-ink-muted">Combinamos óptica, visión por computadora y aprendizaje automático para que un tamizaje de segundos sea confiable en condiciones reales de consultorio.</p>
+      </div>
+
+      <ol class="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
+        <li class="step reveal"><span class="step-num" aria-hidden="true">01</span><span class="step-n">Paso 1</span><h3 class="h3">Captura infrarroja</h3><p class="text-sm leading-relaxed text-ink-muted">Destellos infrarrojos y una cámara NoIR con filtro pasabanda registran el reflejo de fondo de ambos ojos.</p></li>
+        <li class="step reveal"><span class="step-num" aria-hidden="true">02</span><span class="step-n">Paso 2</span><h3 class="h3">Detección de ojos</h3><p class="text-sm leading-relaxed text-ink-muted">Modelos de aprendizaje automático ubican el rostro y los puntos de referencia oculares en cada fotograma.</p></li>
+        <li class="step reveal"><span class="step-num" aria-hidden="true">03</span><span class="step-n">Paso 3</span><h3 class="h3">Localización pupilar</h3><p class="text-sm leading-relaxed text-ink-muted">La transformada de Hough circular delimita el borde de la pupila, donde se mide el reflejo.</p></li>
+        <li class="step reveal"><span class="step-num" aria-hidden="true">04</span><span class="step-n">Paso 4</span><h3 class="h3">Control de calidad</h3><p class="text-sm leading-relaxed text-ink-muted">Un filtro robusto descarta parpadeos, miradas desviadas y fotogramas atípicos antes de calcular.</p></li>
+        <li class="step reveal"><span class="step-num" aria-hidden="true">05</span><span class="step-n">Paso 5</span><h3 class="h3">Cuantificación</h3><p class="text-sm leading-relaxed text-ink-muted">La pendiente de luminancia se convierte en dioptrías y se descompone en vectores de potencia.</p></li>
+        <li class="step reveal"><span class="step-num" aria-hidden="true">06</span><span class="step-n">Paso 6</span><h3 class="h3">Clasificación y reporte</h3><p class="text-sm leading-relaxed text-ink-muted">Reglas clínicas por edad clasifican el riesgo y la impresora entrega el resultado al instante.</p></li>
+      </ol>
+
+    </div>
+  </section>
+
+  <!-- ============ ESTRATEGIA DIGITAL ============ -->
+  <section id="estrategia" class="band-soft border-y border-line py-24 lg:py-32" aria-labelledby="estrategia-title">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="reveal grid gap-6 lg:grid-cols-2 lg:items-end lg:gap-16">
+        <div>
+          <p class="eyebrow">Estrategia digital</p>
+          <h2 id="estrategia-title" class="h2 mt-5">Cómo llevamos ARGOS a quienes <span class="bg-linear-to-r from-accent to-accent-2 box-decoration-clone bg-clip-text text-transparent">cuidan la visión infantil.</span></h2>
+        </div>
+        <p class="lede text-muted">ARGOS se dirige a instituciones que compran y usan dispositivos médicos. Por eso nuestra estrategia digital no solo promociona: construye confianza con evidencia, educa sobre la detección temprana y convierte el interés en demostraciones y pilotos.</p>
+      </div>
+
+      <div class="reveal mt-10">
+        <h3 class="text-xs font-semibold uppercase tracking-[0.16em] text-muted">A quién nos dirigimos</h3>
+        <ul class="mt-4 flex flex-wrap gap-2"><li class="aud-chip">Establecimientos de salud del primer nivel</li><li class="aud-chip">Unidades ejecutoras, DIRIS y MINSA</li><li class="aud-chip">Hospitales y clínicas</li><li class="aud-chip">Distribuidores de equipamiento médico</li><li class="aud-chip">Municipalidades, ONG y colegios</li></ul>
+      </div>
+
+      <div class="mt-16">
+        <h3 class="h3 text-[1.4rem]">Objetivos, de la visibilidad a la adopción</h3>
+        <ol class="funnel mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <li class="funnel-step reveal"><span class="funnel-n" aria-hidden="true">01</span><p class="funnel-stage">Reconocimiento</p><h4 class="mt-2 font-display text-lg font-semibold tracking-tight">Posicionar</h4><p class="mt-2 text-sm leading-relaxed text-muted">Dar a conocer ARGOS como alternativa portátil que integra refracción y alineación ocular en menos de 15 segundos.</p></li>
+          <li class="funnel-step reveal"><span class="funnel-n" aria-hidden="true">02</span><p class="funnel-stage">Educación</p><h4 class="mt-2 font-display text-lg font-semibold tracking-tight">Concientizar</h4><p class="mt-2 text-sm leading-relaxed text-muted">Explicar por qué la detección temprana de la ambliopía importa, con contenido educativo para profesionales e instituciones.</p></li>
+          <li class="funnel-step reveal"><span class="funnel-n" aria-hidden="true">03</span><p class="funnel-stage">Conversión</p><h4 class="mt-2 font-display text-lg font-semibold tracking-tight">Generar oportunidades</h4><p class="mt-2 text-sm leading-relaxed text-muted">Convertir el interés en solicitudes de información, demostraciones y pilotos institucionales.</p></li>
+          <li class="funnel-step reveal"><span class="funnel-n" aria-hidden="true">04</span><p class="funnel-stage">Validación</p><h4 class="mt-2 font-display text-lg font-semibold tracking-tight">Escuchar al mercado</h4><p class="mt-2 text-sm leading-relaxed text-muted">Usar consultas, comentarios y solicitudes para detectar necesidades y mejorar el dispositivo y su propuesta.</p></li>
+        </ol>
+      </div>
+
+      <div class="mt-20">
+        <h3 class="h3 text-[1.4rem]">Herramientas digitales seleccionadas</h3>
+        <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
+          <article class="card feature-col spot reveal">
+            <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H4z"/><path d="M8 20h8M12 16v4"/><path d="M10 8.5l4 2.5-4 2.5z" fill="currentColor"/></svg></span>
+            <h4 class="relative mt-4 font-display text-[1.05rem] font-semibold tracking-tight">Marketing de contenido</h4>
+            <ul class="relative mt-3 flex flex-wrap gap-1.5" aria-label="Herramientas"><li class="tool">Videos</li><li class="tool">Fotografías</li><li class="tool">Blog</li></ul>
+            <p class="relative mt-3 text-sm leading-relaxed text-muted">Mostrar el dispositivo funcionando y el trabajo detrás del producto, y educar sobre la ambliopía. El QR del reporte lleva a las familias a una guía sobre qué hacer ante una derivación.</p>
+          </article>
+          <article class="card feature-col spot reveal">
+            <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="13" height="12" rx="2"/><path d="M16 10l5-3v10l-5-3"/></svg></span>
+            <h4 class="relative mt-4 font-display text-[1.05rem] font-semibold tracking-tight">Webinars y demostraciones</h4>
+            <ul class="relative mt-3 flex flex-wrap gap-1.5" aria-label="Herramientas"><li class="tool">Zoom</li><li class="tool">Google Meet</li><li class="tool">YouTube</li></ul>
+            <p class="relative mt-3 text-sm leading-relaxed text-muted">Presentar el funcionamiento y resolver dudas técnicas antes de una compra o un piloto institucional.</p>
+          </article>
+          <article class="card feature-col spot reveal">
+            <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/></svg></span>
+            <h4 class="relative mt-4 font-display text-[1.05rem] font-semibold tracking-tight">Email marketing</h4>
+            <ul class="relative mt-3 flex flex-wrap gap-1.5" aria-label="Herramientas"><li class="tool">Gmail</li></ul>
+            <p class="relative mt-3 text-sm leading-relaxed text-muted">Mantener la relación con instituciones y distribuidores, y enviar fichas técnicas y material para compras públicas.</p>
+          </article>
+          <article class="card feature-col spot reveal">
+            <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 14h8"/></svg></span>
+            <h4 class="relative mt-4 font-display text-[1.05rem] font-semibold tracking-tight">Sitio web optimizado (CRO)</h4>
+            <ul class="relative mt-3 flex flex-wrap gap-1.5" aria-label="Herramientas"><li class="tool">Este sitio</li></ul>
+            <p class="relative mt-3 text-sm leading-relaxed text-muted">Navegación simple, llamados a la acción claros y respuestas a las preguntas frecuentes de quienes compran dispositivos médicos.</p>
+          </article>
+          <article class="card feature-col spot reveal">
+            <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8.2 10.8l7.6-3.6M8.2 13.2l7.6 3.6"/></svg></span>
+            <h4 class="relative mt-4 font-display text-[1.05rem] font-semibold tracking-tight">Redes sociales</h4>
+            <ul class="relative mt-3 flex flex-wrap gap-1.5" aria-label="Herramientas"><li class="tool">LinkedIn</li><li class="tool">Instagram</li><li class="tool">YouTube</li></ul>
+            <p class="relative mt-3 text-sm leading-relaxed text-muted">Aumentar el alcance y el reconocimiento de la marca, y llevar visitantes hacia la información completa del sitio.</p>
+          </article>
+          <article class="card feature-col spot reveal">
+            <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5.5 5.5"/></svg></span>
+            <h4 class="relative mt-4 font-display text-[1.05rem] font-semibold tracking-tight">SEO y SEM</h4>
+            <ul class="relative mt-3 flex flex-wrap gap-1.5" aria-label="Herramientas"><li class="tool">Google Search</li><li class="tool">Google Ads</li></ul>
+            <p class="relative mt-3 text-sm leading-relaxed text-muted">Aparecer cuando instituciones y profesionales buscan tamizaje visual infantil, de forma orgánica y con anuncios pagados.</p>
+          </article>
+        </div>
+      </div>
+
+      <div class="ai-panel ink-scope reveal mt-20">
+        <div class="grid gap-10 lg:grid-cols-[1.35fr_1fr] lg:gap-12">
+          <div>
+            <p class="eyebrow">Inteligencia artificial</p>
+            <h3 class="h2 mt-4 text-[clamp(1.5rem,1.1rem+1.2vw,2.1rem)]">IA para comunicar mejor, no para diagnosticar.</h3>
+            <p class="mt-4 max-w-[60ch] leading-relaxed text-ink-muted">Usamos IA para mejorar la segmentación, la comunicación y la captación de instituciones. Así reducimos el tiempo y el costo de llegar a cada cliente potencial y priorizamos las oportunidades con más probabilidad de convertirse en un piloto.</p>
+            <ul class="mt-8 grid gap-5 sm:grid-cols-2">
+              <li class="ai-use"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M7 12h10M10 18h4"/></svg></span><div><h4 class="font-display font-semibold tracking-tight">Segmentación de instituciones</h4><p class="mt-1 text-sm leading-relaxed text-ink-muted">Analizar datos públicos de hospitales, clínicas, municipalidades, ONG y colegios para priorizar a quienes tienen mayor probabilidad de interés.</p></div></li>
+              <li class="ai-use"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l1.8 4.6L18.5 9l-4.7 1.4L12 15l-1.8-4.6L5.5 9l4.7-1.4z"/><path d="M18 15l.7 1.8 1.8.7-1.8.7L18 20l-.7-1.8-1.8-.7 1.8-.7z"/></svg></span><div><h4 class="font-display font-semibold tracking-tight">Contenido personalizado</h4><p class="mt-1 text-sm leading-relaxed text-ink-muted">IA generativa para adaptar mensajes según el tipo de institución: detección temprana para centros de salud, campañas para municipalidades y funcionamiento offline-first para zonas con poca conectividad.</p></div></li>
+              <li class="ai-use"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 5h16v11H9l-5 4z"/><path d="M8 10h8M8 13h5"/></svg></span><div><h4 class="font-display font-semibold tracking-tight">Asistente virtual en el sitio</h4><p class="mt-1 text-sm leading-relaxed text-ink-muted">Un chatbot que responde preguntas frecuentes y agenda demostraciones, y deriva las consultas técnicas o clínicas al equipo.</p></div></li>
+              <li class="ai-use"><span class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19V5M4 19h16"/><path d="M8 15l3-4 3 2 4-6"/></svg></span><div><h4 class="font-display font-semibold tracking-tight">Analítica predictiva</h4><p class="mt-1 text-sm leading-relaxed text-ink-muted">Identificar qué contenidos generan más interés y qué visitantes tienen mayor probabilidad de solicitar una demostración o un piloto.</p></div></li>
+            </ul>
+          </div>
+          <aside class="ai-limits" aria-labelledby="limits-title">
+            <span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l8 3v6c0 4.5-3.4 8.2-8 9-4.6-.8-8-4.5-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></svg></span>
+            <h4 id="limits-title" class="mt-5 font-display text-lg font-semibold tracking-tight">Límites éticos y protección de datos</h4>
+            <ul class="ticks-ink mt-4 grid gap-3 text-sm leading-relaxed text-ink-muted"><li>La IA no hace afirmaciones clínicas ni interpreta resultados: toda consulta clínica la responde el equipo.</li><li>Los datos de salud de los tamizajes nunca se usan con fines de marketing.</li><li>Tratamiento de datos personales conforme a la Ley N.° 29733.</li><li>Todo contenido generado con IA es revisado por el equipo antes de publicarse.</li></ul>
+          </aside>
+        </div>
+      </div>
+
+      <div class="reveal mt-20">
+        <div class="flex flex-wrap items-end justify-between gap-3">
+          <h3 id="kpi-title" class="h3 text-[1.4rem]">Cómo medimos los resultados</h3>
+          <p class="flex items-center gap-1.5 text-xs font-medium text-muted lg:hidden" aria-hidden="true">Desliza para ver más
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </p>
+        </div>
+        <p class="mt-2 max-w-[70ch] text-sm leading-relaxed text-muted">Priorizamos métricas ligadas a la adopción institucional, no solo seguidores o visualizaciones.</p>
+        <div class="cmp-wrap kpi-wrap mt-6" data-scroll="none">
+          <div class="cmp-scroll" tabindex="0" role="region" aria-labelledby="kpi-title">
+            <table class="cmp cmp-kpi">
+              <caption class="sr-only">Indicadores de la estrategia digital, etapa del embudo, forma de medirlos y herramienta</caption>
+              <thead><tr><th scope="col">Indicador</th><th scope="col">Etapa</th><th scope="col">Cómo se mide</th><th scope="col">Herramienta</th></tr></thead>
+              <tbody>
+                <tr><th scope="row">Alcance e impresiones</th><td><span class="stage">Reconocimiento</span></td><td>Usuarios alcanzados y veces que se muestra el contenido</td><td>Meta Business Suite, LinkedIn y YouTube Analytics</td></tr>
+                <tr><th scope="row">Tasa de engagement</th><td><span class="stage">Reconocimiento</span></td><td>Interacciones ÷ alcance × 100</td><td>Meta Business Suite, LinkedIn Analytics</td></tr>
+                <tr><th scope="row">Tráfico al sitio web</th><td><span class="stage">Consideración</span></td><td>Visitas y usuarios, según su canal de procedencia</td><td>Google Analytics 4</td></tr>
+                <tr><th scope="row">CTR</th><td><span class="stage">Consideración</span></td><td>Clics ÷ impresiones × 100</td><td>Google Ads, Google Analytics 4</td></tr>
+                <tr><th scope="row">Tasa de conversión</th><td><span class="stage">Conversión</span></td><td>Usuarios que solicitan información o una demostración ÷ visitantes × 100</td><td>Google Analytics 4 (eventos del formulario)</td></tr>
+                <tr><th scope="row">Leads institucionales calificados</th><td><span class="stage">Conversión</span></td><td>Contactos de hospitales, centros de salud, ONG o municipalidades</td><td>CRM</td></tr>
+                <tr><th scope="row">Solicitudes de demostración o piloto</th><td><span class="stage">Conversión</span></td><td>Instituciones que piden una reunión, demo o piloto</td><td>CRM</td></tr>
+                <tr><th scope="row">Costo por lead (CPL)</th><td><span class="stage">Eficiencia</span></td><td>Inversión en marketing digital ÷ leads obtenidos</td><td>Google Ads + CRM</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-20">
+        <h3 class="h3 text-[1.4rem]">Diseño gráfico y web</h3>
+        <div class="mt-6 grid gap-4 md:grid-cols-3 lg:gap-5">
+          <div class="card feature spot reveal"><span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/></svg></span><div class="relative min-w-0"><h4 class="font-display text-[1.02rem] font-semibold tracking-tight">Identidad visual</h4><p class="mt-1.5 text-sm leading-relaxed text-muted">Logo del ojo, paleta azul noche y cian que transmite tecnología y confianza, y el naranja de la luz de fijación como acento.</p></div></div>
+          <div class="card feature spot reveal"><span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span><div class="relative min-w-0"><h4 class="font-display text-[1.02rem] font-semibold tracking-tight">Sitio web</h4><p class="mt-1.5 text-sm leading-relaxed text-muted">Responsivo, accesible y rápido, con modo claro y oscuro, simulación interactiva y formulario de contacto directo.</p></div></div>
+          <div class="card feature spot reveal"><span class="ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="9" cy="9" r="2"/><path d="M21 15l-5-5L5 21"/></svg></span><div class="relative min-w-0"><h4 class="font-display text-[1.02rem] font-semibold tracking-tight">Contenido visual</h4><p class="mt-1.5 text-sm leading-relaxed text-muted">Fotografías reales del prototipo y videos de su uso, para mostrar el dispositivo tal como es.</p></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ TESTIMONIOS ============ -->
+  <section id="testimonios" class="relative py-24 lg:py-32" aria-labelledby="testimonios-title">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="reveal flex flex-wrap items-end justify-between gap-6">
+        <div class="max-w-2xl">
+          <p class="eyebrow">Testimonios</p>
+          <h2 id="testimonios-title" class="h2 mt-5">Voces de familias, profesionales de la salud y aliados.</h2>
+        </div>
+        <div class="flex items-center gap-2.5">
+          <button type="button" class="car-btn" id="carToggle" aria-label="Pausar la rotación automática" data-playing="false">
+            <svg class="i-pause" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M9 6v12M15 6v12"/></svg>
+            <svg class="i-play" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.5v13l10.5-6.5z"/></svg>
+          </button>
+          <button type="button" class="car-btn" id="carPrev" aria-label="Testimonio anterior"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg></button>
+          <button type="button" class="car-btn" id="carNext" aria-label="Testimonio siguiente"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg></button>
+        </div>
+      </div>
+
+      <p class="notice reveal mt-8">
+        <svg class="mt-0.5 shrink-0" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg>
+        <span><strong>Testimonios de ejemplo.</strong> Estos textos ilustran la respuesta que esperamos del público cuando se realice el lanzamiento del producto.</span>
+      </p>
+
+      <div id="carWrap" class="reveal mt-10">
+        <div id="carousel" class="carousel" tabindex="0" role="region" aria-roledescription="carrusel" aria-label="Testimonios">
+          <figure class="quote" aria-roledescription="diapositiva" aria-label="1 de 4">
+            <div class="relative flex items-start justify-between gap-3">
+              <svg class="quote-mark" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M13 7C7.7 8.6 4 12.9 4 18.6V25h9v-9H8.9c.4-3.1 2.3-5.4 5.3-6.6L13 7Zm15 0c-5.3 1.6-9 5.9-9 11.6V25h9v-9h-4.1c.4-3.1 2.3-5.4 5.3-6.6L28 7Z"/></svg>
+            </div>
+            <blockquote class="relative">“Evaluar con cartilla a un niño de tres años toma tiempo y paciencia. Con ARGOS basta con que mire la luz unos segundos, y la mamá se va con el reporte en la mano.”</blockquote>
+            <figcaption class="relative mt-auto flex items-center gap-3 border-t border-line pt-5 text-sm text-muted">
+              <span class="avatar" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8.5" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/></svg></span>
+              <span><strong class="block font-semibold text-fg">[Nombre]</strong>Licenciada en Enfermería, consultorio CRED</span>
+            </figcaption>
+          </figure>
+          <figure class="quote" aria-roledescription="diapositiva" aria-label="2 de 4">
+            <div class="relative flex items-start justify-between gap-3">
+              <svg class="quote-mark" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M13 7C7.7 8.6 4 12.9 4 18.6V25h9v-9H8.9c.4-3.1 2.3-5.4 5.3-6.6L13 7Zm15 0c-5.3 1.6-9 5.9-9 11.6V25h9v-9h-4.1c.4-3.1 2.3-5.4 5.3-6.6L28 7Z"/></svg>
+            </div>
+            <blockquote class="relative">“Recibo menos derivaciones sin sustento y más niños con un hallazgo concreto. El reporte me dice qué valores motivaron la alerta.”</blockquote>
+            <figcaption class="relative mt-auto flex items-center gap-3 border-t border-line pt-5 text-sm text-muted">
+              <span class="avatar" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8.5" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/></svg></span>
+              <span><strong class="block font-semibold text-fg">[Nombre]</strong>Médico oftalmólogo pediatra</span>
+            </figcaption>
+          </figure>
+          <figure class="quote" aria-roledescription="diapositiva" aria-label="3 de 4">
+            <div class="relative flex items-start justify-between gap-3">
+              <svg class="quote-mark" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M13 7C7.7 8.6 4 12.9 4 18.6V25h9v-9H8.9c.4-3.1 2.3-5.4 5.3-6.6L13 7Zm15 0c-5.3 1.6-9 5.9-9 11.6V25h9v-9h-4.1c.4-3.1 2.3-5.4 5.3-6.6L28 7Z"/></svg>
+            </div>
+            <blockquote class="relative">“Es un dispositivo que puedo ofertar al Estado con soporte técnico local y repuestos disponibles en el país.”</blockquote>
+            <figcaption class="relative mt-auto flex items-center gap-3 border-t border-line pt-5 text-sm text-muted">
+              <span class="avatar" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8.5" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/></svg></span>
+              <span><strong class="block font-semibold text-fg">[Nombre]</strong>Distribuidor de equipamiento médico</span>
+            </figcaption>
+          </figure>
+          <figure class="quote" aria-roledescription="diapositiva" aria-label="4 de 4">
+            <div class="relative flex items-start justify-between gap-3">
+              <svg class="quote-mark" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true"><path d="M13 7C7.7 8.6 4 12.9 4 18.6V25h9v-9H8.9c.4-3.1 2.3-5.4 5.3-6.6L13 7Zm15 0c-5.3 1.6-9 5.9-9 11.6V25h9v-9h-4.1c.4-3.1 2.3-5.4 5.3-6.6L28 7Z"/></svg>
+            </div>
+            <blockquote class="relative">“No sabía que mi hija veía menos con un ojo. Ella nunca se quejó.”</blockquote>
+            <figcaption class="relative mt-auto flex items-center gap-3 border-t border-line pt-5 text-sm text-muted">
+              <span class="avatar" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8.5" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/></svg></span>
+              <span><strong class="block font-semibold text-fg">[Nombre]</strong>Madre de familia, campaña escolar</span>
+            </figcaption>
+          </figure>
+        </div>
+        <div id="dots" class="dots mt-8 justify-center" role="group" aria-label="Seleccionar testimonio"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ IMPACTO (ESTADÍSTICAS) ============ -->
+  <section id="impacto" class="band-soft border-y border-line py-24 lg:py-32" aria-labelledby="impacto-title">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="reveal grid gap-6 lg:grid-cols-2 lg:items-end lg:gap-16">
+        <div>
+          <p class="eyebrow">Impacto</p>
+          <h2 id="impacto-title" class="h2 mt-5">Un problema frecuente, silencioso <span class="bg-linear-to-r from-accent to-accent-2 box-decoration-clone bg-clip-text text-transparent">y tratable.</span></h2>
+        </div>
+        <p class="lede text-muted">La ambliopía rara vez da signos que la familia pueda notar <a class="cite" href="#ref3">[3]</a>. Detectada a tiempo, el tratamiento suele ser muy eficaz; si no se trata en la infancia, la pérdida visual tiende a ser permanente <a class="cite" href="#ref2">[2]</a>.</p>
+      </div>
+
+      <div class="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4 lg:gap-5">
+        <div class="card stat spot reveal">
+          <p class="stat-n relative"><span data-count="1.44" data-decimals="2">1.44</span><small>%</small></p>
+          <p class="relative text-sm leading-relaxed text-muted">Prevalencia global combinada de ambliopía, según metaanálisis <a class="cite" href="#ref1">[1]</a>.</p>
+        </div>
+        <div class="card stat spot reveal">
+          <p class="stat-n relative"><span data-count="221.9" data-decimals="1">221.9</span><small>M</small></p>
+          <p class="relative text-sm leading-relaxed text-muted">Personas que vivirían con ambliopía en 2040, según proyecciones <a class="cite" href="#ref1">[1]</a>.</p>
+        </div>
+        <div class="card stat spot reveal">
+          <p class="stat-n relative"><span data-count="75" data-decimals="0">75</span><small>%</small></p>
+          <p class="relative text-sm leading-relaxed text-muted">De niños menores de 7 años con ambliopía moderada alcanzan 20/30 o mejor con tratamiento <a class="cite" href="#ref2">[2]</a>.</p>
+        </div>
+        <div class="card stat spot reveal">
+          <p class="stat-n relative">&lt; <span data-count="15" data-decimals="0">15</span><small>s</small></p>
+          <p class="relative text-sm leading-relaxed text-muted">Tiempo objetivo de ARGOS por evaluación, reporte impreso incluido (especificación de diseño).</p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============ NORMATIVA ============ -->
+  <section id="normativa" class="relative py-24 lg:py-32" aria-labelledby="normativa-title">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="reveal max-w-3xl">
+        <p class="eyebrow">Normatividad y seguridad</p>
+        <h2 id="normativa-title" class="h2 mt-5">Seguridad y cumplimiento <span class="bg-linear-to-r from-accent to-accent-2 box-decoration-clone bg-clip-text text-transparent">desde el diseño.</span></h2>
+        <p class="lede mt-6 text-muted">ARGOS se desarrolla con los marcos técnicos y éticos que exige un dispositivo médico en investigación. Estas normas guían el diseño; la conformidad formal se demostrará en las etapas de validación y registro.</p>
+      </div>
+
+      <div class="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3 lg:gap-5">
+        <article class="card norm spot reveal"><p class="norm-code">IEC 62471</p><h3 class="relative font-display text-[1.05rem] font-semibold tracking-tight">Seguridad fotobiológica</h3><p class="relative text-sm leading-relaxed text-muted">Los LED infrarrojos se evalúan a la distancia clínica de trabajo (60 cm), con meta de grupo de riesgo exento <a class="cite" href="#ref7">[7]</a>.</p></article>
+        <article class="card norm spot reveal"><p class="norm-code">IEC 60601-1</p><h3 class="relative font-display text-[1.05rem] font-semibold tracking-tight">Seguridad eléctrica</h3><p class="relative text-sm leading-relaxed text-muted">Alimentación por batería y aislamiento óptico entre la electrónica de control y las etapas de potencia.</p></article>
+        <article class="card norm spot reveal"><p class="norm-code">ISO 14971</p><h3 class="relative font-display text-[1.05rem] font-semibold tracking-tight">Gestión de riesgos</h3><p class="relative text-sm leading-relaxed text-muted">Cada reporte se identifica como tamizaje y los resultados dudosos se marcan como indeterminados, nunca como normales.</p></article>
+        <article class="card norm spot reveal"><p class="norm-code">AAPOS 2021</p><h3 class="relative font-display text-[1.05rem] font-semibold tracking-tight">Tamizaje instrumental</h3><p class="relative text-sm leading-relaxed text-muted">Criterios de derivación por edad en meses, con corte a los 48 meses, y metodología de validación uniforme <a class="cite" href="#ref4">[4]</a>.</p></article>
+        <article class="card norm spot reveal"><p class="norm-code">R.M. 817-2020/MINSA</p><h3 class="relative font-display text-[1.05rem] font-semibold tracking-tight">Ruta regulatoria</h3><p class="relative text-sm leading-relaxed text-muted">Marco para dispositivos médicos en etapa de investigación ante la Autoridad Nacional (DIGEMID) <a class="cite" href="#ref8">[8]</a>.</p></article>
+        <article class="card norm spot reveal"><p class="norm-code">ISO 14155 · Helsinki</p><h3 class="relative font-display text-[1.05rem] font-semibold tracking-tight">Investigación clínica y ética</h3><p class="relative text-sm leading-relaxed text-muted">Estudio de calibración en niños planificado con el Instituto Nacional de Oftalmología, sujeto a aprobación de su comité de ética.</p></article>
+      </div>
+
+      <div class="panel road-wrap reveal mt-16 p-6 sm:p-9">
+        <h3 class="h3">Dónde estamos</h3>
+        <ol class="road mt-8">
+          <li class="road-done"><span class="road-dot" aria-hidden="true">✓</span><p class="font-display font-semibold tracking-tight">Prototipo funcional</p><p class="text-sm font-medium text-accent">Completado</p></li>
+          <li class="road-now"><span class="road-dot" aria-hidden="true"></span><p class="font-display font-semibold tracking-tight">Calibración en niños (INO)</p><p class="text-sm font-medium text-caution">Protocolo en preparación</p></li>
+          <li><span class="road-dot" aria-hidden="true"></span><p class="font-display font-semibold tracking-tight">Validación clínica</p><p class="text-sm text-muted">Planificada</p></li>
+          <li><span class="road-dot" aria-hidden="true"></span><p class="font-display font-semibold tracking-tight">Registro sanitario</p><p class="text-sm text-muted">Tras la validación</p></li>
+        </ol>
+        <p class="mt-9 flex items-start gap-3 border-t border-line pt-6 text-sm text-muted">
+          <svg class="mt-0.5 shrink-0 text-accent" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 7.5v.01"/></svg>
+          <span>ARGOS es un dispositivo en investigación. No cuenta con registro sanitario y no está disponible para uso clínico.</span>
+        </p>
+      </div>
+
+      <div class="cta reveal mt-16 grid gap-8 px-6 py-12 sm:px-12 sm:py-14 lg:grid-cols-[1.4fr_auto] lg:items-center">
+        <div>
+          <h2 class="font-display text-[clamp(1.6rem,1.2rem+1.6vw,2.4rem)] font-semibold leading-tight tracking-tight">¿Distribuyes equipamiento médico o diriges un establecimiento de salud?</h2>
+          <p class="mt-4 max-w-[58ch] text-white/90">Agenda una demostración con el prototipo y conversemos sobre un piloto en tu red.</p>
+        </div>
+        <a href="#contacto" class="btn btn-light justify-self-start px-7">Solicitar demostración
+          <svg class="arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+  <!-- ============ PREGUNTAS FRECUENTES ============ -->
+  <section id="preguntas" class="band-soft border-t border-line py-24 lg:py-28" aria-labelledby="faq-title">
+    <div class="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16 lg:px-8">
+      <div class="sticky-col reveal">
+        <p class="eyebrow">Preguntas frecuentes</p>
+        <h2 id="faq-title" class="h2 mt-5">Lo que suelen preguntarnos.</h2>
+        <p class="lede mt-5 text-muted">¿Tienes otra duda? <a href="#contacto" class="font-semibold text-accent underline-offset-4 hover:underline">Escríbenos</a> y te respondemos.</p>
+      </div>
+      <div class="grid gap-3">
+          <details class="faq reveal" open>
+            <summary><span>¿ARGOS reemplaza la evaluación del oftalmólogo?</span><span class="faq-ico" aria-hidden="true"></span></summary>
+            <p>No. ARGOS es un dispositivo de tamizaje: identifica niños con factores de riesgo de ambliopía para derivarlos a tiempo. El diagnóstico y el tratamiento siempre los realiza el especialista.</p>
+          </details>
+          <details class="faq reveal">
+            <summary><span>¿Está validado clínicamente?</span><span class="faq-ico" aria-hidden="true"></span></summary>
+            <p>ARGOS es un prototipo funcional. La calibración en niños con el Instituto Nacional de Oftalmología está en preparación y la validación clínica está planificada. Todavía no cuenta con registro sanitario.</p>
+          </details>
+          <details class="faq reveal">
+            <summary><span>¿Necesita internet para funcionar?</span><span class="faq-ico" aria-hidden="true"></span></summary>
+            <p>No. Su arquitectura es offline-first: el tamizaje y el reporte impreso funcionan sin conexión, y los estudios se envían al portal de telemedicina cuando hay conectividad.</p>
+          </details>
+          <details class="faq reveal">
+            <summary><span>¿Quién puede usarlo?</span><span class="faq-ico" aria-hidden="true"></span></summary>
+            <p>El personal de salud, luego de la capacitación que brindamos, con un manual y una guía rápida en español.</p>
+          </details>
+          <details class="faq reveal">
+            <summary><span>¿Es seguro para los niños?</span><span class="faq-ico" aria-hidden="true"></span></summary>
+            <p>La captura es sin contacto, a 60 cm, y los LED infrarrojos se evalúan según la norma de seguridad fotobiológica IEC 62471 a la distancia de uso.</p>
+          </details>
+          <details class="faq reveal">
+            <summary><span>¿Qué soporte técnico ofrecen?</span><span class="faq-ico" aria-hidden="true"></span></summary>
+            <p>Mantenimiento y soporte técnico en Lima, con repuestos disponibles en el mercado nacional.</p>
+          </details>
+          <details class="faq reveal">
+            <summary><span>¿Cómo solicito una demostración o un piloto?</span><span class="faq-ico" aria-hidden="true"></span></summary>
+            <p>Escríbenos desde el formulario de contacto, cuéntanos sobre tu institución y coordinaremos una demostración con el prototipo.</p>
+          </details>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ============ FOOTER ============ -->
+<footer id="contacto" class="site-footer ink-scope">
+  <div class="aurora aurora-foot" aria-hidden="true"><span class="a1"></span></div>
+  <div class="relative mx-auto grid max-w-7xl gap-12 px-4 py-20 sm:px-6 lg:grid-cols-[1fr_0.6fr_1.6fr] lg:gap-10 lg:px-8 lg:py-24">
+    <div class="min-w-0">
+      <a href="#inicio" class="brand inline-flex" aria-label="ARGOS Vision Screening System, volver al inicio">
+        <img src="img/argos-logo.webp" alt="" width="900" height="270" class="logo logo-glow h-16 w-auto sm:h-[4.5rem]" loading="lazy" decoding="async">
+      </a>
+      <p class="mt-5 max-w-[40ch] text-sm leading-relaxed text-ink-muted">Dispositivo portátil de tamizaje visual pediátrico, desarrollado por estudiantes de la Pontificia Universidad Católica del Perú.</p>
+      <p class="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-[var(--warm-fg)]"><span class="dot-warm" aria-hidden="true"></span>Tamizaje, no diagnóstico</p>
+      <div class="mt-6 flex flex-wrap gap-2">
+        <!-- Reemplaza href="#" por los enlaces reales de tus redes -->
+        <a class="social" href="#" aria-label="LinkedIn de ARGOS"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5ZM3 9.5h4V21H3V9.5Zm6.5 0h3.8v1.6h.05c.53-1 1.83-2.05 3.77-2.05 4.03 0 4.78 2.65 4.78 6.1V21h-4v-5.2c0-1.24-.02-2.84-1.73-2.84-1.73 0-2 1.35-2 2.75V21h-4V9.5Z"/></svg>LinkedIn</a>
+        <a class="social" href="#" aria-label="Instagram de ARGOS"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>Instagram</a>
+        <a class="social" href="#" aria-label="YouTube de ARGOS"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23 7.2a3 3 0 0 0-2.1-2.1C19 4.6 12 4.6 12 4.6s-7 0-8.9.5A3 3 0 0 0 1 7.2 31 31 0 0 0 .5 12a31 31 0 0 0 .5 4.8 3 3 0 0 0 2.1 2.1c1.9.5 8.9.5 8.9.5s7 0 8.9-.5a3 3 0 0 0 2.1-2.1 31 31 0 0 0 .5-4.8 31 31 0 0 0-.5-4.8ZM9.75 15.02V8.98L15.5 12l-5.75 3.02Z"/></svg>YouTube</a>
+      </div>
+    </div>
+
+    <nav aria-labelledby="quick-title" class="min-w-0">
+      <h2 id="quick-title" class="text-xs font-semibold uppercase tracking-[0.16em] text-ink-fg">Enlaces rápidos</h2>
+      <ul class="mt-5 grid gap-3 text-sm">
+        <li><a class="flink" href="#dispositivo">Dispositivo</a></li>
+        <li><a class="flink" href="#servicios">Servicios</a></li>
+        <li><a class="flink" href="#ventajas">Ventajas</a></li>
+        <li><a class="flink" href="#tecnologia">Tecnología</a></li>
+        <li><a class="flink" href="#estrategia">Estrategia digital</a></li>
+        <li><a class="flink" href="#testimonios">Testimonios</a></li>
+        <li><a class="flink" href="#impacto">Impacto</a></li>
+        <li><a class="flink" href="#normativa">Normativa</a></li>
+        <li><a class="flink" href="#preguntas">Preguntas frecuentes</a></li>
+        <li><a class="flink" href="#referencias">Referencias</a></li>
+      </ul>
+    </nav>
+
+    <div class="form-card @container min-w-0">
+      <h2 id="contact-title" class="font-display text-2xl font-semibold tracking-tight sm:text-[1.75rem]">Escríbenos</h2>
+      <p class="mt-2 text-sm leading-relaxed text-ink-muted">Cuéntanos quién eres y qué necesitas. Te respondemos para coordinar una demostración.</p>
+      <form id="contactForm" class="mt-7 grid gap-x-4 gap-y-1 @md:grid-cols-2" aria-labelledby="contact-title" novalidate>
+        <div class="min-w-0">
+          <label class="label" for="nombre">Nombre completo</label>
+          <input class="field" id="nombre" name="nombre" type="text" autocomplete="name" required aria-required="true" aria-describedby="err-nombre">
+          <p class="err" id="err-nombre" aria-live="polite"></p>
+        </div>
+        <div class="min-w-0">
+          <label class="label" for="correo">Correo</label>
+          <input class="field" id="correo" name="correo" type="email" inputmode="email" autocomplete="email" required aria-required="true" aria-describedby="err-correo">
+          <p class="err" id="err-correo" aria-live="polite"></p>
+        </div>
+        <div class="min-w-0">
+          <label class="label" for="institucion">Institución <span class="font-normal text-ink-muted">(opcional)</span></label>
+          <input class="field" id="institucion" name="institucion" type="text" autocomplete="organization">
+          <p class="err"></p>
+        </div>
+        <div class="min-w-0">
+          <label class="label" for="perfil">Perfil</label>
+          <select class="field" id="perfil" name="perfil" required aria-required="true" aria-describedby="err-perfil">
+            <option value="">Elige una opción</option>
+            <option>Distribuidor de equipamiento médico</option>
+            <option>Establecimiento de salud</option>
+            <option>Investigación o academia</option>
+            <option>Otro</option>
+          </select>
+          <p class="err" id="err-perfil" aria-live="polite"></p>
+        </div>
+        <div class="min-w-0 @md:col-span-2">
+          <label class="label" for="mensaje">Mensaje</label>
+          <textarea class="field min-h-32" id="mensaje" name="mensaje" rows="4" placeholder="Nos interesa evaluar un piloto de tamizaje visual en los establecimientos de nuestra red de salud y quisiéramos coordinar una demostración del dispositivo." required aria-required="true" aria-describedby="err-mensaje"></textarea>
+          <p class="err" id="err-mensaje" aria-live="polite"></p>
+        </div>
+        <div class="@md:col-span-2">
+          <label class="flex cursor-pointer items-start gap-3 text-sm leading-relaxed text-ink-muted" for="consent">
+            <input id="consent" name="consent" type="checkbox" class="mt-0.5 size-5 shrink-0 cursor-pointer" required aria-required="true" aria-describedby="err-consent">
+            <span>Autorizo el uso de mis datos solo para responder esta consulta, conforme a la Ley N.° 29733.</span>
+          </label>
+          <p class="err" id="err-consent" aria-live="polite"></p>
+        </div>
+        <div class="flex flex-wrap items-center gap-4 pt-2 @md:col-span-2">
+          <button type="submit" class="btn btn-primary w-full sm:w-auto" id="submitBtn">
+            <span data-label>Enviar mensaje</span>
+            <svg class="arrow" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            <span class="spinner" aria-hidden="true" hidden></span>
+          </button>
+          <span class="text-xs text-ink-muted">Formulario de demostración: aún no envía datos.</span>
+        </div>
+      </form>
+      <div id="formOk" class="ok-box mt-6" tabindex="-1" role="status" hidden>
+        <svg class="mt-0.5 shrink-0 text-cyan" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8.5 12.2l2.4 2.4 4.6-5"/></svg>
+        <div>
+          <p class="font-semibold">Gracias, <span data-name></span>. Tu consulta quedó registrada.</p>
+          <p class="mt-1 text-sm text-ink-muted">Esta es una simulación: conecta el formulario a tu correo o CRM para recibir los mensajes.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="referencias" class="relative border-t border-white/10">
+    <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      <h2 class="text-xs font-semibold uppercase tracking-[0.16em] text-ink-fg">Referencias</h2>
+      <ol class="refs mt-6 lg:grid-cols-2 lg:gap-x-10">
+        <li id="ref1">Z. Fu, H. Hong, Z. Su, B. Lou, C.-W. Pan y H. Liu, “Global prevalence of amblyopia and disease burden projections through 2040: A systematic review and meta-analysis,” <em>Br. J. Ophthalmol.</em>, vol. 104, no. 8, pp. 1164–1170, 2020. <a href="https://doi.org/10.1136/bjophthalmol-2019-314759" target="_blank" rel="noopener noreferrer">doi:10.1136/bjophthalmol-2019-314759<span class="sr-only"> (se abre en una pestaña nueva)</span></a></li>
+        <li id="ref2">BMJ Best Practice, “Amblyopia,” BMJ Publishing Group, Londres, R. U., actualizado el 31 dic. 2025.</li>
+        <li id="ref3">A. K. Hutchinson <em>et al.</em>, “Pediatric Eye Evaluations Preferred Practice Pattern®,” <em>Ophthalmology</em>, vol. 130, no. 3, pp. P222–P270, 2023. <a href="https://pubmed.ncbi.nlm.nih.gov/36543602/" target="_blank" rel="noopener noreferrer">PubMed 36543602<span class="sr-only"> (se abre en una pestaña nueva)</span></a></li>
+        <li id="ref4">R. W. Arnold <em>et al.</em>, “AAPOS uniform guidelines for instrument-based pediatric vision screen validation 2021,” <em>J. AAPOS</em>, vol. 26, no. 1, pp. 1.e1–1.e6, 2022. <a href="https://pubmed.ncbi.nlm.nih.gov/35066152/" target="_blank" rel="noopener noreferrer">PubMed 35066152<span class="sr-only"> (se abre en una pestaña nueva)</span></a></li>
+        <li id="ref5">R. Agarwala, A. Leube y S. Wahl, “Utilizing minicomputer technology for low-cost photorefraction: A feasibility study,” <em>Biomed. Opt. Express</em>, vol. 11, no. 11, pp. 6108–6121, 2020. <a href="https://pmc.ncbi.nlm.nih.gov/articles/PMC7687974/" target="_blank" rel="noopener noreferrer">PMC7687974<span class="sr-only"> (se abre en una pestaña nueva)</span></a></li>
+        <li id="ref6">Ministerio de Salud del Perú, <em>Guía técnica para la detección y corrección oportuna de problemas visuales en la niña y el niño menor de cinco años</em>. Lima, Perú: MINSA, 2017. <a href="http://bvs.minsa.gob.pe/local/MINSA/4215.pdf" target="_blank" rel="noopener noreferrer">bvs.minsa.gob.pe<span class="sr-only"> (se abre en una pestaña nueva)</span></a></li>
+        <li id="ref7"><em>Photobiological Safety of Lamps and Lamp Systems</em>, IEC 62471:2006, International Electrotechnical Commission, Ginebra, 2006.</li>
+        <li id="ref8">Ministerio de Salud del Perú, Resolución Ministerial N.° 817-2020/MINSA, Lima, Perú, 2020.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="relative border-t border-white/10">
+    <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-7 text-xs text-ink-muted sm:px-6 lg:px-8">
+      <p>© 2026 ARGOS</p>
+      <p class="flex items-center gap-2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-5.6-7-11a7 7 0 0 1 14 0c0 5.4-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>Lima, Perú</p>
+    </div>
+  </div>
+</footer>
+
+<dialog id="lightbox" class="lightbox" aria-label="Imagen ampliada">
+  <form method="dialog"><button class="icon-btn lb-close" aria-label="Cerrar imagen"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></form>
+  <figure class="m-0">
+    <img id="lbImg" src="" alt="">
+    <figcaption id="lbCap" class="mt-4 text-center text-sm text-ink-muted"></figcaption>
+  </figure>
+</dialog>
+
+<a href="#inicio" id="toTop" class="to-top ink-scope" aria-label="Volver arriba">
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
+</a>
+
+<script>
+(() => {
+  const root = document.documentElement;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const canHover = window.matchMedia('(hover: hover)').matches;
+  const $ = (s, c = document) => c.querySelector(s);
+  const $$ = (s, c = document) => [...c.querySelectorAll(s)];
+
+  /* ---------- Revelado al hacer scroll (va primero: si algo fallara después, el contenido ya se muestra) ----------
+     Los elementos que entran juntos se escalonan en el orden en que aparecen. */
+  if ('IntersectionObserver' in window) {
+    const revIO = new IntersectionObserver(entries => {
+      entries.filter(e => e.isIntersecting).forEach((e, i) => {
+        const el = e.target;
+        if (!el.style.getPropertyValue('--d')) el.style.setProperty('--d', Math.min(i, 5) * 90 + 'ms');
+        el.classList.add('is-in');
+        revIO.unobserve(el);
+      });
+    }, { threshold: 0, rootMargin: '0px 0px -8% 0px' });
+    $$('.reveal').forEach(el => revIO.observe(el));
+  } else {
+    $$('.reveal').forEach(el => el.classList.add('is-in'));
+  }
+
+  /* ---------- Encabezado, barra de progreso y botón "volver arriba" ---------- */
+  const header = $('#top'), bar = $('#progress'), toTop = $('#toTop');
+  let ticking = false;
+  const onScroll = () => {
+    ticking = false;
+    const y = window.scrollY, max = document.documentElement.scrollHeight - window.innerHeight;
+    header.classList.toggle('is-scrolled', y > 8);
+    bar.style.transform = `scaleX(${max > 0 ? Math.min(1, y / max) : 0})`;
+    toTop.classList.toggle('is-on', y > window.innerHeight * 0.9);
+  };
+  window.addEventListener('scroll', () => { if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive: true });
+  onScroll();
+
+  /* ---------- Tema claro / oscuro (persistente) ---------- */
+  const themeBtn = $('#themeBtn'), darkMQ = window.matchMedia('(prefers-color-scheme: dark)');
+  const effTheme = () => root.dataset.theme || (darkMQ.matches ? 'dark' : 'light');
+  const paintThemeBtn = () => {
+    const t = effTheme();
+    themeBtn.dataset.mode = t;
+    themeBtn.setAttribute('aria-label', t === 'dark' ? 'Cambiar a tema claro' : 'Cambiar a tema oscuro');
+  };
+  themeBtn.addEventListener('click', () => {
+    const next = effTheme() === 'dark' ? 'light' : 'dark';
+    const apply = () => { root.dataset.theme = next; paintThemeBtn(); };
+    if (document.startViewTransition && !reduce) document.startViewTransition(apply); else apply();
+    try { localStorage.setItem('argos-theme', next); } catch (e) {}
+  });
+  if (darkMQ.addEventListener) darkMQ.addEventListener('change', paintThemeBtn);
+  paintThemeBtn();
+
+  /* ---------- Menú móvil ---------- */
+  const menuBtn = $('#menuBtn'), menu = $('#mobileMenu');
+  const menuOpen = () => menu.dataset.open === 'true';
+  const setMenu = (open, returnFocus) => {
+    menuBtn.setAttribute('aria-expanded', String(open));
+    menu.dataset.open = String(open);
+    header.classList.toggle('menu-open', open);
+    if (!open && returnFocus) menuBtn.focus();
+  };
+  menuBtn.addEventListener('click', () => setMenu(!menuOpen()));
+  $$('a', menu).forEach(a => a.addEventListener('click', () => setMenu(false)));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && menuOpen()) setMenu(false, true); });
+  document.addEventListener('click', e => { if (menuOpen() && !header.contains(e.target)) setMenu(false); });
+  window.addEventListener('resize', () => { if (window.innerWidth >= 1280 && menuOpen()) setMenu(false); });
+
+  /* ---------- Enlace activo según la sección visible ---------- */
+  const navLinks = $$('[data-nav]');
+  const secIO = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      navLinks.forEach(l => l.getAttribute('href') === '#' + e.target.id ? l.setAttribute('aria-current', 'location') : l.removeAttribute('aria-current'));
+    });
+  }, { rootMargin: '-45% 0px -50% 0px' });
+  $$('main section[id]').forEach(s => secIO.observe(s));
+
+  /* ---------- Contadores de estadísticas ---------- */
+  const cIO = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      cIO.unobserve(e.target);
+      if (reduce) return;
+      const el = e.target, to = parseFloat(el.dataset.count), dec = +(el.dataset.decimals || 0);
+      const fmt = new Intl.NumberFormat('es-PE', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+      const t0 = performance.now(), dur = 1600;
+      const tick = now => {
+        const p = Math.min(1, (now - t0) / dur);
+        el.textContent = fmt.format(to * (1 - Math.pow(1 - p, 4)));
+        if (p < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    });
+  }, { threshold: 0.6 });
+  $$('[data-count]').forEach(el => cIO.observe(el));
+
+  /* ---------- Foco de luz que sigue al cursor ---------- */
+  if (canHover) {
+    $$('.spot, .flip').forEach(el => el.addEventListener('pointermove', e => {
+      const r = el.getBoundingClientRect();
+      el.style.setProperty('--mx', (e.clientX - r.left) + 'px');
+      el.style.setProperty('--my', (e.clientY - r.top) + 'px');
+    }, { passive: true }));
+  }
+
+  /* ---------- Tarjetas de servicio (giro) ---------- */
+  $$('.flip').forEach(card => {
+    const front = $('.front', card), back = $('.back', card), openBtn = $('.front [data-flip]', card);
+    back.inert = true;
+    $$('[data-flip]', card).forEach(btn => btn.addEventListener('click', () => {
+      const on = card.dataset.flipped !== 'true';
+      card.dataset.flipped = String(on);
+      front.inert = on; back.inert = !on;
+      front.setAttribute('aria-hidden', String(on));
+      back.setAttribute('aria-hidden', String(!on));
+      openBtn.setAttribute('aria-expanded', String(on));
+      $('[data-flip]', on ? back : front).focus({ preventScroll: true });
+    }));
+  });
+
+
+
+  /* ---------- Video: carga el reproductor de YouTube solo al hacer clic (más rápido y más privado) ---------- */
+  // YouTube exige que la página tenga una dirección web (http/https) para insertar el reproductor;
+  // si se abre como archivo local, el video se abre directamente en YouTube.
+  const canEmbed = /^https?:$/.test(location.protocol);
+  $$('[data-yt]').forEach(a => {
+    if (!canEmbed) { a.target = '_blank'; a.rel = 'noopener noreferrer'; return; }
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const f = document.createElement('iframe');
+      f.src = `https://www.youtube-nocookie.com/embed/${a.dataset.yt}?autoplay=1&rel=0&playsinline=1&origin=${encodeURIComponent(location.origin)}`;
+      f.title = 'ARGOS en acción: concientización y uso del dispositivo';
+      f.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+      f.allowFullscreen = true;
+      f.referrerPolicy = 'strict-origin-when-cross-origin';
+      a.replaceWith(f);
+      f.focus();
+    });
+  });
+
+  /* ---------- Galería: ampliar fotos del dispositivo ---------- */
+  const lb = $('#lightbox'), lbImg = $('#lbImg'), lbCap = $('#lbCap');
+  let lbOpener = null;
+  $$('.shot-btn').forEach(btn => btn.addEventListener('click', () => {
+    if (typeof lb.showModal !== 'function') { window.open(btn.dataset.full, '_blank', 'noopener'); return; }
+    lbOpener = btn;
+    lbImg.src = btn.dataset.full; lbImg.alt = btn.dataset.alt; lbCap.textContent = btn.dataset.caption;
+    lb.showModal();
+  }));
+  lb.addEventListener('click', e => { if (e.target === lb) lb.close(); });
+  lb.addEventListener('close', () => { lbImg.removeAttribute('src'); if (lbOpener) lbOpener.focus(); });
+
+  /* ---------- Tabla comparativa: sombra de "hay más" al desplazar ---------- */
+  $$('.cmp-wrap').forEach(wrap => {
+    const sc = $('.cmp-scroll', wrap);
+    const edge = () => {
+      const max = sc.scrollWidth - sc.clientWidth;
+      wrap.dataset.scroll = max <= 2 ? 'none' : sc.scrollLeft >= max - 2 ? 'end' : 'more';
+    };
+    sc.addEventListener('scroll', edge, { passive: true });
+    window.addEventListener('resize', edge);
+    edge();
+  });
+
+  /* ---------- Carrusel de testimonios (autoplay con pausa, progreso y teclado) ---------- */
+  const car = $('#carousel'), dotsWrap = $('#dots'), carToggle = $('#carToggle');
+  const slides = [...car.children], DUR = 7000;
+  let pages = 1, playing = !reduce, hovering = false, carVisible = false, elapsed = 0, last = 0, carRaf = 0;
+  const gap = () => parseFloat(getComputedStyle(car).columnGap) || 0;
+  const padX = () => { const cs = getComputedStyle(car); return (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0); };
+  const stepW = () => slides[0].getBoundingClientRect().width + gap();
+  const current = () => Math.max(0, Math.min(pages - 1, Math.round(car.scrollLeft / stepW())));
+  const go = i => { elapsed = 0; dotsWrap.style.setProperty('--p', playing ? 0 : 1); car.scrollTo({ left: i * stepW(), behavior: reduce ? 'auto' : 'smooth' }); };
+  const sync = () => { const c = current(); [...dotsWrap.children].forEach((d, i) => d.setAttribute('aria-current', String(i === c))); };
+  const paintToggle = () => {
+    carToggle.dataset.playing = String(playing);
+    carToggle.setAttribute('aria-label', playing ? 'Pausar la rotación automática' : 'Reanudar la rotación automática');
+    if (!playing) dotsWrap.style.setProperty('--p', 1);
+  };
+  function carTick(now) {
+    carRaf = 0;
+    if (!(playing && !hovering && carVisible && !document.hidden)) { last = 0; return; }
+    elapsed += last ? now - last : 0; last = now;
+    if (elapsed >= DUR) go((current() + 1) % pages);
+    dotsWrap.style.setProperty('--p', Math.min(1, elapsed / DUR).toFixed(3));
+    carRaf = requestAnimationFrame(carTick);
+  }
+  const carKick = () => { if (!carRaf && playing && !hovering && carVisible) { last = 0; carRaf = requestAnimationFrame(carTick); } };
+  const stopAuto = () => { if (playing) { playing = false; paintToggle(); } };
+  function buildDots() {
+    const visible = Math.max(1, Math.round((car.clientWidth - padX() + gap()) / stepW()));
+    pages = Math.max(1, slides.length - visible + 1);
+    dotsWrap.replaceChildren(...Array.from({ length: pages }, (_, i) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.setAttribute('aria-label', 'Ir al testimonio ' + (i + 1));
+      b.addEventListener('click', () => { stopAuto(); go(i); });
+      return b;
+    }));
+    sync();
+  }
+  car.addEventListener('scroll', () => requestAnimationFrame(sync), { passive: true });
+  $('#carPrev').addEventListener('click', () => { stopAuto(); go((current() - 1 + pages) % pages); });
+  $('#carNext').addEventListener('click', () => { stopAuto(); go((current() + 1) % pages); });
+  carToggle.addEventListener('click', () => { playing = !playing; elapsed = 0; paintToggle(); carKick(); });
+  car.addEventListener('keydown', e => {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    e.preventDefault(); stopAuto();
+    go(Math.max(0, Math.min(pages - 1, current() + (e.key === 'ArrowRight' ? 1 : -1))));
+  });
+  ['pointerdown', 'wheel', 'touchstart'].forEach(ev => car.addEventListener(ev, stopAuto, { passive: true }));
+  const carWrap = $('#carWrap');
+  carWrap.addEventListener('pointerenter', () => { hovering = true; });
+  carWrap.addEventListener('pointerleave', () => { hovering = false; carKick(); });
+  carWrap.addEventListener('focusin', () => { hovering = true; });
+  carWrap.addEventListener('focusout', e => { if (!carWrap.contains(e.relatedTarget)) { hovering = false; carKick(); } });
+  new IntersectionObserver(es => { carVisible = es[0].isIntersecting; carKick(); }, { threshold: 0.35 }).observe(car);
+  document.addEventListener('visibilitychange', carKick);
+  window.addEventListener('resize', buildDots);
+  buildDots(); paintToggle();
+
+  /* ---------- Formulario de contacto (simulado) ---------- */
+  const form = $('#contactForm'), okBox = $('#formOk'), submitBtn = $('#submitBtn');
+  const rules = {
+    nombre: v => v.trim().length >= 2 || 'Escribe tu nombre completo.',
+    correo: v => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim()) || 'Escribe un correo válido, por ejemplo nombre@institucion.pe.',
+    perfil: v => !!v || 'Elige el perfil que mejor te describe.',
+    mensaje: v => v.trim().length >= 10 || 'Cuéntanos en al menos 10 caracteres qué necesitas.'
+  };
+  const check = name => {
+    const field = form.elements[name], res = rules[name](field.value), bad = res !== true;
+    $('#err-' + name).textContent = bad ? res : '';
+    field.setAttribute('aria-invalid', String(bad));
+    return !bad;
+  };
+  const checkConsent = () => {
+    const ok = form.elements.consent.checked;
+    $('#err-consent').textContent = ok ? '' : 'Necesitamos tu autorización para responderte.';
+    return ok;
+  };
+  // Tras el primer intento, cada campo se revalida mientras la persona escribe
+  Object.keys(rules).forEach(name => {
+    const field = form.elements[name];
+    ['input', 'change'].forEach(ev => field.addEventListener(ev, () => { if (field.hasAttribute('aria-invalid')) check(name); }));
+  });
+  form.elements.consent.addEventListener('change', () => { if ($('#err-consent').textContent) checkConsent(); });
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    let first = null;
+    Object.keys(rules).forEach(name => { if (!check(name) && !first) first = form.elements[name]; });
+    if (!checkConsent() && !first) first = form.elements.consent;
+    if (first) { first.focus(); okBox.hidden = true; return; }
+    const label = $('[data-label]', submitBtn), spin = $('.spinner', submitBtn), arrow = $('.arrow', submitBtn);
+    submitBtn.disabled = true; label.textContent = 'Enviando…'; spin.hidden = false; arrow.hidden = true;
+    setTimeout(() => {
+      $('[data-name]', okBox).textContent = form.elements.nombre.value.trim().split(/\s+/)[0];
+      form.reset();
+      $$('[aria-invalid]', form).forEach(f => f.removeAttribute('aria-invalid'));
+      submitBtn.disabled = false; label.textContent = 'Enviar mensaje'; spin.hidden = true; arrow.hidden = false;
+      okBox.hidden = false;
+      okBox.focus();
+    }, reduce ? 0 : 700);
+  });
+
+  /* ---------- Simulación de fotorrefracción excéntrica ---------- */
+  const cv = $('#eye'), ctx = cv.getContext('2d');
+  const rx = $('#rx'), rxOut = $('#rxOut');
+  const merBtns = $$('[data-mer]');
+  const css = getComputedStyle(root);
+  const HUD = css.getPropertyValue('--cyan').trim() || '#3DDCEB';
+  const MUTED = css.getPropertyValue('--ink-muted').trim() || '#9DB1C8';
+  const MONO = '"JetBrains Mono", ui-monospace, monospace';
+  const A = 0.6;          // distancia de trabajo [m]
+  const K = 0.05;         // pendiente relativa por dioptría (ilustrativo)
+  const SMAX = 0.24;      // saturación de la pendiente
+  const B0 = 0.74;        // brillo medio del reflejo de fondo (la pupila se ve clara en IR)
+  const MER = [0, 60, 120];
+  let W = 0, H = 0, dpr = 1, geo = null, skin = null, iris = null, lashes = null, noisePat = null;
+  let mode = 'auto', mi = 0, lastSwitch = 0, flashT = -1e9, D = parseFloat(rx.value);
+
+  const rng = seed => () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+  const layer = (w, h) => { const c = document.createElement('canvas'); c.width = Math.max(1, Math.round(w * dpr)); c.height = Math.max(1, Math.round(h * dpr)); const x = c.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0); return [c, x]; };
+  const model = d => ({ s: Math.max(-SMAX, Math.min(SMAX, K * (d + 1 / A))) });
+  // Dirección del meridiano en pantalla: 0° es vertical y el ángulo crece en sentido antihorario (como en el equipo)
+  const merDir = deg => { const t = deg * Math.PI / 180; return [-Math.sin(t), -Math.cos(t)]; };
+  const almond = (c, g) => { c.beginPath(); c.moveTo(g.cx - g.ew / 2, g.cy); c.quadraticCurveTo(g.cx, g.cy - g.eh * 1.05, g.cx + g.ew / 2, g.cy); c.quadraticCurveTo(g.cx, g.cy + g.eh * 0.95, g.cx - g.ew / 2, g.cy); c.closePath(); };
+
+  function build() {
+    const r = cv.getBoundingClientRect();
+    if (!r.width) return;
+    dpr = Math.min(2, window.devicePixelRatio || 1); W = r.width; H = r.height;
+    cv.width = Math.round(W * dpr); cv.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    // Vista binocular: dos ojos simétricos respecto al centro del rostro
+    const ew = Math.min(W * 0.35, H * 0.72), eh = ew * 0.46, Ri = eh * 0.5, cy = H * 0.37, gap = W * 0.215;
+    geo = { ew, eh, Ri, Rp: Ri * 0.5, cy, eyes: [{ cx: W / 2 - gap, nasal: 1 }, { cx: W / 2 + gap, nasal: -1 }] };
+    const R = rng(11), Rp = geo.Rp;
+    let x, g;
+    // Piel en infrarrojo (tonos grises claros), cejas y sombra del puente nasal
+    [skin, x] = layer(W, H);
+    g = x.createRadialGradient(W / 2, cy, ew * 0.2, W / 2, cy, Math.max(W, H) * 0.75);
+    g.addColorStop(0, '#959ba0'); g.addColorStop(0.6, '#6f7479'); g.addColorStop(1, '#30353a');
+    x.fillStyle = g; x.fillRect(0, 0, W, H);
+    g = x.createLinearGradient(W / 2 - ew * 0.22, 0, W / 2 + ew * 0.22, 0);
+    g.addColorStop(0, 'rgba(30,33,37,0)'); g.addColorStop(0.3, 'rgba(30,33,37,.12)'); g.addColorStop(0.5, 'rgba(235,240,245,.06)'); g.addColorStop(0.7, 'rgba(30,33,37,.12)'); g.addColorStop(1, 'rgba(30,33,37,0)');
+    x.fillStyle = g; x.fillRect(W / 2 - ew * 0.22, cy - eh * 0.3, ew * 0.44, H - cy);
+    x.lineCap = 'round';
+    geo.eyes.forEach(({ cx, nasal }) => {
+      const inner = cx + nasal * ew * 0.46, outer = cx - nasal * ew * 0.46;
+      [[0.09, 0.14], [0.05, 0.24]].forEach(([a, w]) => { x.strokeStyle = `rgba(28,31,35,${a})`; x.lineWidth = eh * w; x.beginPath(); x.moveTo(inner, cy - eh * 0.66); x.quadraticCurveTo(cx, cy - eh * 1.5, outer, cy - eh * 0.58); x.stroke(); });
+    });
+    for (let i = 0; i < 1600; i++) { const v = R() < 0.5 ? 0 : 255; x.fillStyle = `rgba(${v},${v},${v},${R() * 0.05})`; x.fillRect(R() * W, R() * H, 1 + R() * 1.6, 1 + R() * 1.6); }
+    // Iris con fibras radiales (misma textura para ambos ojos)
+    [iris, x] = layer(Ri * 2, Ri * 2);
+    g = x.createRadialGradient(Ri, Ri, Rp * 0.9, Ri, Ri, Ri);
+    g.addColorStop(0, '#80868b'); g.addColorStop(0.4, '#6c7277'); g.addColorStop(0.86, '#575d62'); g.addColorStop(1, '#23272b');
+    x.fillStyle = g; x.beginPath(); x.arc(Ri, Ri, Ri, 0, Math.PI * 2); x.fill();
+    for (let i = 0; i < 700; i++) {
+      const a = R() * Math.PI * 2, r1 = Rp * (1 + R() * 0.2), r2 = Ri * (0.7 + R() * 0.28), wob = (R() - 0.5) * 0.08, light = R() < 0.5;
+      x.strokeStyle = light ? `rgba(235,240,245,${0.03 + R() * 0.09})` : `rgba(10,12,14,${0.05 + R() * 0.12})`;
+      x.lineWidth = 0.4 + R() * 0.9;
+      x.beginPath(); x.moveTo(Ri + Math.cos(a) * r1, Ri + Math.sin(a) * r1); x.lineTo(Ri + Math.cos(a + wob) * r2, Ri + Math.sin(a + wob) * r2); x.stroke();
+    }
+    x.strokeStyle = 'rgba(215,220,225,.16)'; x.lineWidth = Ri * 0.05; x.beginPath(); x.arc(Ri, Ri, Rp * 1.55, 0, Math.PI * 2); x.stroke();
+    x.strokeStyle = 'rgba(15,17,19,.55)'; x.lineWidth = Ri * 0.08; x.beginPath(); x.arc(Ri, Ri, Ri * 0.96, 0, Math.PI * 2); x.stroke();
+    // Pestañas: trazos curvos hacia afuera a lo largo de ambos párpados de cada ojo
+    [lashes, x] = layer(W, H);
+    x.lineCap = 'round';
+    const lid = (cx, y1, n, lenK, alpha, dir) => {
+      for (let i = 0; i < n; i++) {
+        const t = 0.06 + 0.88 * (i + R() * 0.6) / n;
+        const P0 = [cx - ew / 2, cy], P1 = [cx, cy + y1], P2 = [cx + ew / 2, cy];
+        const bx0 = (1 - t) ** 2 * P0[0] + 2 * (1 - t) * t * P1[0] + t * t * P2[0];
+        const by0 = (1 - t) ** 2 * P0[1] + 2 * (1 - t) * t * P1[1] + t * t * P2[1];
+        let tx = 2 * (1 - t) * (P1[0] - P0[0]) + 2 * t * (P2[0] - P1[0]), ty = 2 * (1 - t) * (P1[1] - P0[1]) + 2 * t * (P2[1] - P1[1]);
+        const tl = Math.hypot(tx, ty); tx /= tl; ty /= tl;
+        const nx = ty * dir, ny = -tx * dir;                       // normal hacia afuera del ojo
+        const len = eh * lenK * (0.55 + 0.45 * Math.sin(Math.PI * t)) * (0.85 + R() * 0.3);
+        const side = (t - 0.5) * 2;                                // las pestañas se abren hacia las comisuras
+        const ex = bx0 + nx * len + tx * len * 0.45 * side, ey = by0 + ny * len + ty * len * 0.45 * side;
+        x.strokeStyle = `rgba(18,20,23,${alpha * (0.7 + R() * 0.3)})`;
+        x.lineWidth = Math.max(0.6, eh * 0.011) * (0.7 + R() * 0.6);
+        x.beginPath(); x.moveTo(bx0, by0);
+        x.quadraticCurveTo(bx0 + nx * len * 0.7, by0 + ny * len * 0.7, ex, ey); x.stroke();
+      }
+    };
+    geo.eyes.forEach(({ cx }) => { lid(cx, -eh * 1.05, 32, 0.24, 0.85, 1); lid(cx, eh * 0.95, 12, 0.09, 0.45, -1); });
+    // Grano de sensor
+    const n = document.createElement('canvas'); n.width = n.height = 160;
+    const nx = n.getContext('2d'), img = nx.createImageData(160, 160);
+    for (let i = 0; i < img.data.length; i += 4) { const v = R() * 255; img.data[i] = img.data[i + 1] = img.data[i + 2] = v; img.data[i + 3] = 255; }
+    nx.putImageData(img, 0, 0);
+    noisePat = ctx.createPattern(n, 'repeat');
+  }
+
+  function draw(now) {
+    if (!geo) return;
+    const { ew, eh, cy, Ri, Rp, eyes } = geo;
+    const [ux, uy] = merDir(MER[mi]);
+    const flash = reduce ? 0 : Math.max(0, 1 - (now - flashT) / 320);
+    const { s } = model(D);
+    // La mirada se mueve igual en ambos ojos (fijación binocular)
+    const mx = reduce ? 0 : Math.sin(now / 1900) * Ri * 0.03, my = reduce ? 0 : Math.cos(now / 2300) * Ri * 0.02;
+    const cl = v => Math.max(0.02, Math.min(0.95, v));
+    const gray = v => { const k = Math.round(cl(v) * 255); return `rgb(${k},${k},${k})`; };
+    const pupils = eyes.map(e => ({ ...e, px: e.cx + mx, py: cy + my }));
+
+    ctx.clearRect(0, 0, W, H);
+    ctx.drawImage(skin, 0, 0, W, H);
+    pupils.forEach(({ cx, px, py, nasal }) => {
+      const eg = { cx, cy, ew, eh };
+      ctx.save(); almond(ctx, eg); ctx.clip();
+      let g = ctx.createRadialGradient(cx, cy, eh * 0.1, cx, cy, ew * 0.55);
+      g.addColorStop(0, '#bcc1c5'); g.addColorStop(1, '#71777c');
+      ctx.fillStyle = g; ctx.fillRect(cx - ew / 2, cy - eh, ew, eh * 2);
+      ctx.drawImage(iris, px - Ri, py - Ri, Ri * 2, Ri * 2);
+      // Reflejo de fondo: gradiente lineal a lo largo del meridiano, pendiente ∝ desenfoque
+      const b0 = B0 + 0.2 * flash;
+      g = ctx.createLinearGradient(px - ux * Rp, py - uy * Rp, px + ux * Rp, py + uy * Rp);
+      g.addColorStop(0, gray(b0 - s)); g.addColorStop(1, gray(b0 + s));
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(px, py, Rp, 0, Math.PI * 2); ctx.fill();
+      g = ctx.createRadialGradient(px, py, Rp * 0.55, px, py, Rp);
+      g.addColorStop(0, 'rgba(0,0,0,0)'); g.addColorStop(1, 'rgba(0,0,0,.18)');
+      ctx.fillStyle = g; ctx.fill();
+      // Reflejo corneal (Purkinje I) para Hirschberg: levemente nasal en cada ojo
+      const hx = px + nasal * Rp * 0.14, hy = py - Rp * 0.06;
+      g = ctx.createRadialGradient(hx, hy, 0, hx, hy, Rp * 0.24);
+      g.addColorStop(0, 'rgba(255,255,255,1)'); g.addColorStop(0.35, 'rgba(255,255,255,.9)'); g.addColorStop(1, 'rgba(255,255,255,0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(hx, hy, Rp * 0.24, 0, Math.PI * 2); ctx.fill();
+      g = ctx.createLinearGradient(0, cy - eh * 0.55, 0, cy - eh * 0.05);
+      g.addColorStop(0, 'rgba(0,0,0,.55)'); g.addColorStop(1, 'rgba(0,0,0,0)');
+      ctx.fillStyle = g; ctx.fillRect(cx - ew / 2, cy - eh, ew, eh);
+      ctx.restore();
+      almond(ctx, eg); ctx.strokeStyle = 'rgba(22,24,27,.7)'; ctx.lineWidth = Math.max(1.1, eh * 0.02); ctx.stroke();
+    });
+    ctx.drawImage(lashes, 0, 0, W, H);
+
+    // Grano
+    ctx.save();
+    const q = reduce ? 0 : Math.floor(now / 90);
+    ctx.globalAlpha = 0.07; ctx.translate(-((q * 37) % 160), -((q * 61) % 160));
+    ctx.fillStyle = noisePat; ctx.fillRect(0, 0, W + 160, H + 160);
+    ctx.restore();
+
+    // Capa HUD: un recuadro para ambos ojos, pupilas marcadas y meridiano en cada una
+    ctx.save();
+    ctx.strokeStyle = HUD; ctx.fillStyle = HUD; ctx.lineWidth = 1.25;
+    const fs = Math.max(9.5, Math.min(12, W * 0.022));
+    ctx.font = `600 ${fs}px ${MONO}`;
+    const bx = eyes[0].cx - ew * 0.62, by = cy - eh * 0.95, bw = (eyes[1].cx - eyes[0].cx) + ew * 1.24, bh = eh * 1.75, L = Math.min(18, bw * 0.05);
+    ctx.beginPath();
+    [[bx, by, 1, 1], [bx + bw, by, -1, 1], [bx, by + bh, 1, -1], [bx + bw, by + bh, -1, -1]].forEach(([x0, y0, sx, sy]) => { ctx.moveTo(x0 + sx * L, y0); ctx.lineTo(x0, y0); ctx.lineTo(x0, y0 + sy * L); });
+    ctx.stroke();
+    ctx.textAlign = 'left';
+    // Si no cabe sobre el recuadro (pantallas angostas), la etiqueta va junto a la esquina superior
+    if (by - 8 >= fs + 2) ctx.fillText('OJOS DETECTADOS', bx, by - 8); else ctx.fillText('OJOS DETECTADOS', bx + L + 6, by + fs * 0.35);
+    pupils.forEach(({ px, py }, i) => {
+      ctx.globalAlpha = 0.9; ctx.beginPath(); ctx.arc(px, py, Rp + 3, 0, Math.PI * 2); ctx.stroke();
+      for (let k = 0; k < 4; k++) { const a = k * Math.PI / 2; ctx.beginPath(); ctx.moveTo(px + Math.cos(a) * (Rp + 3), py + Math.sin(a) * (Rp + 3)); ctx.lineTo(px + Math.cos(a) * (Rp + 8), py + Math.sin(a) * (Rp + 8)); ctx.stroke(); }
+      ctx.globalAlpha = 1; ctx.setLineDash([4, 4]);
+      ctx.beginPath(); ctx.moveTo(px - ux * Ri * 1.25, py - uy * Ri * 1.25); ctx.lineTo(px + ux * Ri * 1.25, py + uy * Ri * 1.25); ctx.stroke();
+      ctx.setLineDash([]);
+      if (i === 1) { ctx.textAlign = 'center'; ctx.fillText(MER[mi] + '°', px + ux * Ri * 1.5, py + uy * Ri * 1.5 + fs * 0.35); }
+    });
+
+    // Recuadro: frente del dispositivo con los LEDs que se encienden en el meridiano actual
+    const LR = Math.min(40, W * 0.085), lx = W / 2, ly = H - LR - 12;
+    ctx.fillStyle = 'rgba(3,9,15,.8)'; ctx.strokeStyle = 'rgba(255,255,255,.12)'; ctx.lineWidth = 1;
+    const boxW = LR * 2 + 16, boxH = LR * 2 + 12;
+    ctx.beginPath(); ctx.roundRect ? ctx.roundRect(lx - boxW / 2 - 44, ly - LR - 6, boxW + 88, boxH, 10) : ctx.rect(lx - boxW / 2 - 44, ly - LR - 6, boxW + 88, boxH); ctx.fill(); ctx.stroke();
+    ctx.font = `500 ${Math.max(8.5, fs * 0.8)}px ${MONO}`;
+    ctx.fillStyle = MUTED; ctx.textAlign = 'right'; ctx.fillText('LEDS', lx - LR - 8, ly - 2);
+    ctx.fillStyle = HUD; ctx.textAlign = 'left'; ctx.fillText(MER[mi] + '°', lx + LR + 8, ly - 2);
+    ctx.fillStyle = MUTED; ctx.textAlign = 'right'; ctx.fillText('ACTIVOS', lx - LR - 8, ly + fs);
+    const disc = (r, c) => { ctx.fillStyle = c; ctx.beginPath(); ctx.arc(lx, ly, r, 0, Math.PI * 2); ctx.fill(); };
+    disc(LR, '#1f2f8f'); disc(LR * 0.9, '#c9c9c4'); disc(LR * 0.78, '#e2a43b'); disc(LR * 0.46, '#141518');
+    ctx.fillStyle = '#b95a1c';
+    for (let k = 0; k < 18; k++) { const a = k / 18 * Math.PI * 2; ctx.beginPath(); ctx.arc(lx + Math.cos(a) * LR * 0.62, ly + Math.sin(a) * LR * 0.62, LR * 0.045, 0, Math.PI * 2); ctx.fill(); }
+    MER.forEach(m => {
+      const [dx, dy] = merDir(m), on = m === MER[mi];
+      [1, -1].forEach(sg => {
+        const gx = lx + dx * LR * 0.27 * sg, gy = ly + dy * LR * 0.27 * sg;
+        ctx.fillStyle = on ? `rgba(255,70,60,${0.45 + 0.4 * flash})` : 'rgba(255,255,255,.07)';
+        ctx.beginPath(); ctx.arc(gx, gy, LR * 0.13, 0, Math.PI * 2); ctx.fill();
+        if (on) { ctx.strokeStyle = 'rgba(255,120,100,.9)'; ctx.lineWidth = 1; ctx.stroke(); }
+      });
+    });
+    ctx.fillStyle = '#3a3d42'; ctx.fillRect(lx - LR * 0.07, ly - LR * 0.07, LR * 0.14, LR * 0.14);
+    ctx.restore();
+  }
+
+  const fmtD = d => (d > 0 ? '+' : d < 0 ? '−' : '') + Math.abs(d).toFixed(2) + ' D';
+  const rxMin = parseFloat(rx.min), rxMax = parseFloat(rx.max);
+  function readout() {
+    rxOut.textContent = fmtD(D);
+    rx.setAttribute('aria-valuetext', fmtD(D).replace(' D', ' dioptrías'));
+    rx.style.setProperty('--fill', ((D - rxMin) / (rxMax - rxMin) * 100) + '%');
+  }
+  function pressButtons() { merBtns.forEach(b => b.setAttribute('aria-pressed', String(mode === 'auto' ? b.dataset.mer === 'auto' : +b.dataset.mer === MER[mi]))); }
+
+  let visible = false, raf = 0;
+  function loop(now) {
+    raf = 0;
+    if (mode === 'auto' && !reduce && now - lastSwitch > 1700) { mi = (mi + 1) % 3; lastSwitch = now; flashT = now; readout(); }
+    draw(now);
+    if (visible && !reduce && !document.hidden) raf = requestAnimationFrame(loop);
+  }
+  const kick = () => { if (!raf) raf = requestAnimationFrame(loop); };
+
+  rx.addEventListener('input', () => { D = parseFloat(rx.value); readout(); kick(); });
+  merBtns.forEach(b => b.addEventListener('click', () => {
+    const now = performance.now();
+    if (b.dataset.mer === 'auto') mode = 'auto';
+    else { mode = 'manual'; mi = MER.indexOf(+b.dataset.mer); }
+    lastSwitch = now; flashT = now;
+    pressButtons(); readout(); kick();
+  }));
+  new IntersectionObserver(es => { visible = es[0].isIntersecting; if (visible) kick(); }).observe(cv);
+  document.addEventListener('visibilitychange', kick);
+  new ResizeObserver(() => { build(); kick(); }).observe(cv);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(kick);
+  build(); readout(); pressButtons(); kick();
+})();
+</script>
+</body>
+</html>
